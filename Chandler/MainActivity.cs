@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Gms.Common;
 using Android.Gms.Common.Apis;
 using Android.Gms.Wearable;
 using Android.OS;
-using Android.Support.V4.App;
 using Android.Support.Wearable.Views;
 using Android.Util;
 using Android.Widget;
@@ -72,31 +73,25 @@ namespace Toggl.Chandler
 
         private void OnButtonClicked (object sender, EventArgs e)
         {
-            var notification = new NotificationCompat.Builder (this)
-            .SetContentTitle ("Button tapped")
-            .SetContentText ("Button tapped " + count + " times!")
-            .SetSmallIcon (Android.Resource.Drawable.StatNotifyVoicemail)
-            .SetGroup ("group_key_demo").Build ();
-
-            var manager = NotificationManagerCompat.From (this);
-            manager.Notify (1, notification);
-
+            SendStartStopMessage ();
         }
 
         private void SendStartStopMessage ()
         {
-            var apiResult = WearableClass.NodeApi.GetConnectedNodes (googleApiClient) .Await ().JavaCast<INodeApiGetConnectedNodesResult> ();
-            var nodes = apiResult.Nodes;
-            var phoneNode = nodes.FirstOrDefault ();
+            Task.Run (() => {
+                var apiResult = WearableClass.NodeApi.GetConnectedNodes (googleApiClient) .Await ().JavaCast<INodeApiGetConnectedNodesResult> ();
+                var nodes = apiResult.Nodes;
+                var phoneNode = nodes.FirstOrDefault ();
 
-            WearableClass.MessageApi.SendMessage (googleApiClient, phoneNode.Id,
-                                                  Common.StartTimeEntryPath,
-                                                  new byte[0]);
+                WearableClass.MessageApi.SendMessage (googleApiClient, phoneNode.Id,
+                                                      Common.StartTimeEntryPath,
+                                                      new byte[0]);
+            });
         }
 
         #region Interface implementation
 
-        public override void OnDataChanged (DataEventBuffer dataEvents)
+        public void OnDataChanged (DataEventBuffer dataEvents)
         {
             if (!googleApiClient.IsConnected) {
                 ConnectionResult connectionResult = googleApiClient.BlockingConnect (30, TimeUnit.Seconds);
@@ -157,12 +152,12 @@ namespace Toggl.Chandler
             var dataMapItem = DataMapItem.FromDataItem (dataItem);
             var map = dataMapItem.DataMap;
 
-            var serializer = new System.Xml.Serialization.XmlSerializer (SimpleTimeEntryData);
+            var serializer = new System.Xml.Serialization.XmlSerializer (typeof (SimpleTimeEntryData));
             var itemList = new List<SimpleTimeEntryData> (map.Size ());
             var dataArray = map.GetDataMapArrayList (Common.TimeEntryListKey);
-
             foreach (var data in dataArray) {
-                var item = (SimpleTimeEntryData)serializer.Deserialize (new System.IO.MemoryStream (data));
+                var byteArray = data.GetByteArray (Common.SingleEntryKey);
+                var item = (SimpleTimeEntryData)serializer.Deserialize (new MemoryStream (byteArray));
                 itemList.Add (item);
             }
         }
