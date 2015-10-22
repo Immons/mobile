@@ -21,7 +21,7 @@ namespace Toggl.Joey.Wear
             }
 
             var active = new TimeEntryModel (manager.Active);
-            if (manager.Running) {
+            if (manager.Active.State == TimeEntryState.Running) {
                 await active.StopAsync ();
                 ServiceContainer.Resolve<ITracker> ().SendTimerStopEvent (TimerStopSource.Watch);
             } else {
