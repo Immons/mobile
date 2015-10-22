@@ -32,6 +32,7 @@ namespace Toggl.Chandler
         {
             base.OnCreate (savedInstanceState);
 
+            SetContentView (Resource.Layout.Main);
             ViewPager = FindViewById<GridViewPager> (Resource.Id.pager);
             DotsIndicator = FindViewById<DotsPageIndicator> (Resource.Id.indicator);
             ActionButton = FindViewById<ImageButton> (Resource.Id.testButton);
@@ -45,6 +46,9 @@ namespace Toggl.Chandler
             .AddConnectionCallbacks (this)
             .AddOnConnectionFailedListener (this)
             .Build ();
+
+            googleApiClient.Connect();
+
         }
 
         protected override void OnResume ()
@@ -62,10 +66,6 @@ namespace Toggl.Chandler
             googleApiClient.Disconnect ();
         }
 
-        private void ViewStubInflated (object sender, WatchViewStub.LayoutInflatedEventArgs e)
-        {
-        }
-
         private void OnActionButtonClicked (object sender, EventArgs e)
         {
             SendStartStopMessage ();
@@ -76,11 +76,11 @@ namespace Toggl.Chandler
             Task.Run (() => {
                 var apiResult = WearableClass.NodeApi.GetConnectedNodes (googleApiClient) .Await ().JavaCast<INodeApiGetConnectedNodesResult> ();
                 var nodes = apiResult.Nodes;
-                var phoneNode = nodes.FirstOrDefault ();
-
-                WearableClass.MessageApi.SendMessage (googleApiClient, phoneNode.Id,
-                                                      Common.StartTimeEntryPath,
-                                                      new byte[0]);
+                foreach (var node in nodes) {
+                    WearableClass.MessageApi.SendMessage (googleApiClient, node.Id,
+                                                          Common.StartTimeEntryPath,
+                                                          new byte[0]);
+                }
             });
         }
 
