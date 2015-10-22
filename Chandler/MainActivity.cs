@@ -22,22 +22,23 @@ namespace Toggl.Chandler
     {
         public const string Tag = "MainActivity";
 
-        private WatchViewStub watchViewStub;
-        private ImageButton testButton;
-        private GridViewPager pager;
-        private DotsPageIndicator dots;
-        private int count;
+        private ImageButton ActionButton;
+        private GridViewPager ViewPager;
+        private DotsPageIndicator DotsIndicator;
 
         private IGoogleApiClient googleApiClient;
 
         protected override void OnCreate (Bundle savedInstanceState)
         {
-            count = 1;
             base.OnCreate (savedInstanceState);
 
-            SetContentView (Resource.Layout.Main);
-            watchViewStub = FindViewById<WatchViewStub> (Resource.Id.watch_view_stub);
-            watchViewStub.LayoutInflated += ViewStubInflated;
+            ViewPager = FindViewById<GridViewPager> (Resource.Id.pager);
+            DotsIndicator = FindViewById<DotsPageIndicator> (Resource.Id.indicator);
+            ActionButton = FindViewById<ImageButton> (Resource.Id.testButton);
+
+            ViewPager.Adapter = new TimeEntriesPagerAdapter (this, FragmentManager);
+            DotsIndicator.SetPager (ViewPager);
+            ActionButton.Click += OnActionButtonClicked;
 
             googleApiClient = new GoogleApiClientBuilder (this)
             .AddApi (WearableClass.API)
@@ -63,15 +64,9 @@ namespace Toggl.Chandler
 
         private void ViewStubInflated (object sender, WatchViewStub.LayoutInflatedEventArgs e)
         {
-            pager = FindViewById<GridViewPager> (Resource.Id.pager);
-            dots = FindViewById<DotsPageIndicator> (Resource.Id.indicator);
-            pager.Adapter = new TimeEntriesPagerAdapter (this, FragmentManager);
-            dots.SetPager (pager);
-            testButton = FindViewById<ImageButton> (Resource.Id.testButton);
-            testButton.Click += OnButtonClicked;
         }
 
-        private void OnButtonClicked (object sender, EventArgs e)
+        private void OnActionButtonClicked (object sender, EventArgs e)
         {
             SendStartStopMessage ();
         }
@@ -170,6 +165,3 @@ namespace Toggl.Chandler
         }
     }
 }
-
-
-
