@@ -9,6 +9,7 @@ using Toggl.Phoebe.Data.ViewModels;
 using Toggl.Phoebe.Data.Views;
 using XPlatUtils;
 using PropertyChanged;
+using System.Windows.Input;
 
 namespace Toggl.Phoebe.Data.ViewModels
 {
@@ -31,6 +32,8 @@ namespace Toggl.Phoebe.Data.ViewModels
             this.timeEntryIds = timeEntryIds;
             ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
         }
+
+        public event EventHandler<object> ShowNewProjectEvent;
 
         public bool IsLoading { get; set; }
 
@@ -118,6 +121,13 @@ namespace Toggl.Phoebe.Data.ViewModels
         public void SetNavigateBack (Action action)
         {
             this.navigateBackAction = action;
+        }
+
+        public void ShowNewProject (object view)
+        {
+            if (this.ShowNewProjectEvent != null) {
+                this.ShowNewProjectEvent (this, view);
+            }
         }
     }
 }

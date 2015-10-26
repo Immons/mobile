@@ -13,6 +13,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
     public class ProjectSelectionViewController : UITableViewController
     {
         private readonly TimeEntryModel model;
+        private Source source;
 
         public ProjectSelectionViewController (TimeEntryModel model)
         : base (UITableViewStyle.Plain)
@@ -37,7 +38,10 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
             View.Apply (Style.Screen);
             EdgesForExtendedLayout = UIRectEdge.None;
-            new Source (this).Attach();
+            source = new Source (this.TableView, this.ViewModel);
+            source.Attach();
+
+            this.ViewModel.ShowNewProjectEvent += (sender, e) => this.NavigateToNewProject (e);
         }
 
         private void CreateBindingSet()
@@ -60,6 +64,11 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             if (i >= 0) {
                 NavigationController.PopToViewController (vc[i], true);
             }
+        }
+
+        private void NavigateToNewProject (object view)
+        {
+            this.NavigationController.PushViewController (view as UIViewController, true);
         }
     }
 }

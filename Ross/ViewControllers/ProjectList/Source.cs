@@ -7,6 +7,7 @@ using Toggl.Phoebe.Data.Views;
 using Toggl.Ross.DataSources;
 using Toggl.Ross.Theme;
 using UIKit;
+using Toggl.Phoebe.Data.ViewModels;
 
 namespace Toggl.Ross.ViewControllers.ProjectList
 {
@@ -15,23 +16,25 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         private readonly static NSString WorkspaceHeaderId = new NSString ("SectionHeaderId");
         private readonly static NSString ProjectCellId = new NSString ("ProjectCellId");
         private readonly static NSString TaskCellId = new NSString ("TaskCellId");
-        private readonly ProjectSelectionViewController controller;
+        private readonly UITableView tableView;
         private readonly HashSet<Guid> expandedProjects = new HashSet<Guid>();
+        private readonly ProjectListViewModel viewModel;
 
-        public Source (ProjectSelectionViewController controller)
-        : base (controller.TableView, new ProjectAndTaskView())
+        public Source (UITableView tableView, ProjectListViewModel viewModel)
+        : base (tableView, new ProjectAndTaskView())
         {
-            this.controller = controller;
+            this.viewModel = viewModel;
+            this.tableView = tableView;
         }
 
         public override void Attach()
         {
             base.Attach();
 
-            controller.TableView.RegisterClassForCellReuse (typeof (WorkspaceHeaderCell), WorkspaceHeaderId);
-            controller.TableView.RegisterClassForCellReuse (typeof (ProjectCell), ProjectCellId);
-            controller.TableView.RegisterClassForCellReuse (typeof (TaskCell), TaskCellId);
-            controller.TableView.SeparatorStyle = UITableViewCellSeparatorStyle.None;
+            tableView.RegisterClassForCellReuse (typeof (WorkspaceHeaderCell), WorkspaceHeaderId);
+            tableView.RegisterClassForCellReuse (typeof (ProjectCell), ProjectCellId);
+            tableView.RegisterClassForCellReuse (typeof (TaskCell), TaskCellId);
+            tableView.SeparatorStyle = UITableViewCellSeparatorStyle.None;
         }
 
         private void ToggleTasksExpanded (Guid projectId)
@@ -129,24 +132,26 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
             if (m is TaskData) {
                 var data = (TaskData)m;
-                controller.ViewModel.Finish ((TaskModel)data);
+                viewModel.Finish ((TaskModel)data);
             } else if (m is ProjectAndTaskView.Project) {
                 var wrap = (ProjectAndTaskView.Project)m;
                 if (wrap.IsNoProject) {
-                    controller.ViewModel.Finish (workspace: new WorkspaceModel (wrap.WorkspaceId));
+                    viewModel.Finish (workspace: new WorkspaceModel (wrap.WorkspaceId));
                 } else if (wrap.IsNewProject) {
                     var proj = (ProjectModel)wrap.Data;
                     // Show create project dialog instead
-                    var next = new NewProjectViewController (proj.Workspace, proj.Color) {
-                        ProjectCreated = (p) => controller.ViewModel.Finish (project: p),
+
+                    var newProjectViewController = new NewProjectViewController (proj.Workspace, proj.Color) {
+                        ProjectCreated = (p) => viewModel.Finish (project: p),
                     };
-                    controller.NavigationController.PushViewController (next, true);
+
+                    this.viewModel.ShowNewProject (newProjectViewController);
                 } else {
-                    controller.ViewModel.Finish (project: (ProjectModel)wrap.Data);
+                    viewModel.Finish (project: (ProjectModel)wrap.Data);
                 }
             } else if (m is ProjectAndTaskView.Workspace) {
                 var wrap = (ProjectAndTaskView.Workspace)m;
-                controller.ViewModel.Finish (workspace: (WorkspaceModel)wrap.Data);
+                viewModel.Finish (workspace: (WorkspaceModel)wrap.Data);
             }
 
             tableView.DeselectRow (indexPath, true);
