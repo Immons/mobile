@@ -4,12 +4,15 @@ using Toggl.Phoebe.Data.Models;
 using Toggl.Ross.Theme;
 using UIKit;
 using XPlatUtils;
+using Toggl.Phoebe.Data.ViewModels;
+using System.Collections.Generic;
 
 namespace Toggl.Ross.ViewControllers.ProjectList
 {
     public class ProjectSelectionViewController : UITableViewController
     {
         private readonly TimeEntryModel model;
+        private ProjectListViewModel viewModel;
 
         public ProjectSelectionViewController (TimeEntryModel model)
         : base (UITableViewStyle.Plain)
@@ -22,6 +25,11 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
+
+            var array = new [] { model.Id.ToString() };
+            var timeEntryIds = new List<string> (array);
+
+            viewModel = new ProjectListViewModel (timeEntryIds);
 
             View.Apply (Style.Screen);
             EdgesForExtendedLayout = UIRectEdge.None;
