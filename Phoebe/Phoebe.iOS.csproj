@@ -69,11 +69,13 @@
     <Compile Include="Analytics\**\*.cs" />
     <Compile Include="Logging\**\*.cs" />
     <Compile Include="Logging\ILoggerClient.cs" />
+    <Compile Include="Contrib\Bind\Bind.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Contrib\" />
     <Folder Include="Contrib\SQLite\" />
     <Folder Include="Contrib\XPlatUtils\" />
+    <Folder Include="Contrib\Bind\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

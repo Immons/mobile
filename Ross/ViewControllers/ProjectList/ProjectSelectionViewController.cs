@@ -6,6 +6,7 @@ using UIKit;
 using XPlatUtils;
 using Toggl.Phoebe.Data.ViewModels;
 using System.Collections.Generic;
+using Toggl.Phoebe.Contrib.Bind;
 
 namespace Toggl.Ross.ViewControllers.ProjectList
 {
@@ -34,6 +35,11 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             View.Apply (Style.Screen);
             EdgesForExtendedLayout = UIRectEdge.None;
             new Source (this).Attach();
+        }
+
+        private void CreateBindingSet()
+        {
+//            Binding.Create(() => );
         }
 
         public override void ViewDidAppear (bool animated)
