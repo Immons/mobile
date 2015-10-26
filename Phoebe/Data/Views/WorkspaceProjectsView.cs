@@ -473,7 +473,7 @@ namespace Toggl.Phoebe.Data.Views
                 if (sortBy == SortProjectsBy.Clients) {
                     var aName = a.Data != null ? (a.Data.Name ?? String.Empty) : String.Empty;
                     var bName = b.Data != null ? (b.Data.Name ?? String.Empty) : String.Empty;
-                    res = String.Compare (aName, bName, StringComparison.OrdinalIgnoreCase);
+                    res = String.Compare (aName, bName, StringComparison.InvariantCulture);
                 } else {
                     // Try to order by client name when same project name
                     var aClient = a.Data != null ? clients.FirstOrDefault (r => r.Id == a.Data.ClientId) : null;
@@ -482,7 +482,7 @@ namespace Toggl.Phoebe.Data.Views
                     var aClientName = aClient != null ? aClient.Name ?? String.Empty : String.Empty;
                     var bClientName = bClient != null ? bClient.Name ?? String.Empty : String.Empty;
 
-                    res = String.Compare (aClientName, bClientName, StringComparison.OrdinalIgnoreCase);
+                    res = String.Compare (aClientName, bClientName, StringComparison.InvariantCulture);
                 }
 
                 return res;
@@ -497,7 +497,7 @@ namespace Toggl.Phoebe.Data.Views
                 }
                 return String.Compare (
                            a.Data.Name ?? String.Empty,
-                           b.Data.Name ?? String.Empty,StringComparison.OrdinalIgnoreCase
+                           b.Data.Name ?? String.Empty,StringComparison.InvariantCulture
                        );
             });
         }
@@ -507,7 +507,7 @@ namespace Toggl.Phoebe.Data.Views
             data.Sort ((a, b) => String.Compare (
                            a.Name ?? String.Empty,
                            b.Name ?? String.Empty,
-                           StringComparison.OrdinalIgnoreCase
+                           StringComparison.InvariantCulture
                        ));
         }
 

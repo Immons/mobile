@@ -10,13 +10,6 @@
         android:layout_height="fill_parent"
         android:padding="15dp">
         <TextView
-            android:id="@+id/HeaderTextView"
-            style="?android:attr/listSeparatorTextViewStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/gray"
-            android:text="@string/FeedbackHeaderTextView" />
-        <TextView
             android:id="@+id/DescriptionTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -10,8 +10,8 @@
     <string name="LoginPasswordHint">Password</string>
     <string name="LoginHideButtonText">HIDE</string>
     <string name="LoginShowButtonText">SHOW</string>
-    <string name="LoginButtonText">Let\'s go</string>
-    <string name="LoginSignupButtonText">Let\'s do it</string>
+    <string name="LoginButtonText">Log in</string>
+    <string name="LoginSignupButtonText">Sign up</string>
     <string name="LoginButtonProgressText">Logging in&#8230;</string>
     <string name="LoginButtonSignupProgressText">Signing up&#8230;</string>
     <string name="LoginGoogleButtonText">Log in with Google</string>

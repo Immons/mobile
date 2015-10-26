@@ -114,7 +114,7 @@ namespace Toggl.Joey.UI.Fragments
         private void SyncItems ()
         {
             submitFeedbackButton.SetText (isSendingFeedback ? Resource.String.SendFeedbackButtonActiveText : Resource.String.SendFeedbackButtonText);
-            submitFeedbackButton.Enabled = UserRating != ratingNotSet && UserMessage != String.Empty && !isSendingFeedback;
+            submitFeedbackButton.Enabled = UserMessage != String.Empty && !isSendingFeedback;
             feedbackMessageEditText.Enabled = !isSendingFeedback;
             feedbackPositiveButton.Enabled = !isSendingFeedback;
             feedbackNeutralButton.Enabled = !isSendingFeedback;
