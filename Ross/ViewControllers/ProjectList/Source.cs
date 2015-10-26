@@ -129,24 +129,24 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
             if (m is TaskData) {
                 var data = (TaskData)m;
-                controller.Finish ((TaskModel)data);
+                controller.ViewModel.Finish ((TaskModel)data);
             } else if (m is ProjectAndTaskView.Project) {
                 var wrap = (ProjectAndTaskView.Project)m;
                 if (wrap.IsNoProject) {
-                    controller.Finish (workspace: new WorkspaceModel (wrap.WorkspaceId));
+                    controller.ViewModel.Finish (workspace: new WorkspaceModel (wrap.WorkspaceId));
                 } else if (wrap.IsNewProject) {
                     var proj = (ProjectModel)wrap.Data;
                     // Show create project dialog instead
                     var next = new NewProjectViewController (proj.Workspace, proj.Color) {
-                        ProjectCreated = (p) => controller.Finish (project: p),
+                        ProjectCreated = (p) => controller.ViewModel.Finish (project: p),
                     };
                     controller.NavigationController.PushViewController (next, true);
                 } else {
-                    controller.Finish (project: (ProjectModel)wrap.Data);
+                    controller.ViewModel.Finish (project: (ProjectModel)wrap.Data);
                 }
             } else if (m is ProjectAndTaskView.Workspace) {
                 var wrap = (ProjectAndTaskView.Workspace)m;
-                controller.Finish (workspace: (WorkspaceModel)wrap.Data);
+                controller.ViewModel.Finish (workspace: (WorkspaceModel)wrap.Data);
             }
 
             tableView.DeselectRow (indexPath, true);

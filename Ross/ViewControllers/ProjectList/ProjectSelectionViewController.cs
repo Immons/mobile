@@ -13,7 +13,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
     public class ProjectSelectionViewController : UITableViewController
     {
         private readonly TimeEntryModel model;
-        private ProjectListViewModel viewModel;
 
         public ProjectSelectionViewController (TimeEntryModel model)
         : base (UITableViewStyle.Plain)
@@ -23,14 +22,18 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             Title = "ProjectTitle".Tr();
         }
 
+        public ProjectListViewModel ViewModel { get; set; }
+
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
             var array = new [] { model.Id.ToString() };
             var timeEntryIds = new List<string> (array);
+            this.ViewModel = new ProjectListViewModel (timeEntryIds);
 
-            viewModel = new ProjectListViewModel (timeEntryIds);
+            this.ViewModel.Model = this.model;
+            this.ViewModel.SetNavigateBack (NavigateBack);
 
             View.Apply (Style.Screen);
             EdgesForExtendedLayout = UIRectEdge.None;
@@ -49,33 +52,13 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
         }
 
-        public Action ProjectSelected { get; set; }
-
-        public async void Finish (TaskModel task = null, ProjectModel project = null, WorkspaceModel workspace = null)
+        private void NavigateBack()
         {
-            project = task != null ? task.Project : project;
-            if (project != null) {
-                await project.LoadAsync();
-                workspace = project.Workspace;
-            }
-
-            if (project != null || task != null || workspace != null) {
-                model.Workspace = workspace;
-                model.Project = project;
-                model.Task = task;
-                await model.SaveAsync();
-            }
-
-            var cb = ProjectSelected;
-            if (cb != null) {
-                cb();
-            } else {
-                // Pop to previous view controller
-                var vc = NavigationController.ViewControllers;
-                var i = Array.IndexOf (vc, this) - 1;
-                if (i >= 0) {
-                    NavigationController.PopToViewController (vc[i], true);
-                }
+            // Pop to previous view controller
+            var vc = NavigationController.ViewControllers;
+            var i = Array.IndexOf (vc, this) - 1;
+            if (i >= 0) {
+                NavigationController.PopToViewController (vc[i], true);
             }
         }
     }

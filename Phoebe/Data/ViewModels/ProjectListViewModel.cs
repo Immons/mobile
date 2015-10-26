@@ -15,10 +15,10 @@ namespace Toggl.Phoebe.Data.ViewModels
     [ImplementPropertyChanged]
     public class ProjectListViewModel : IVModel<ITimeEntryModel>
     {
-        private ITimeEntryModel model;
         private IList<TimeEntryData> timeEntryList;
         private WorkspaceProjectsView projectList;
         private IList<string> timeEntryIds;
+        private Action navigateBackAction;
 
         public ProjectListViewModel (IList<TimeEntryData> timeEntryList)
         {
@@ -64,15 +64,15 @@ namespace Toggl.Phoebe.Data.ViewModels
 
             // Create model.
             if (timeEntryList.Count > 1) {
-                model = new TimeEntryGroup (timeEntryList);
+                Model = new TimeEntryGroup (timeEntryList);
             } else if (timeEntryList.Count == 1) {
-                model = new TimeEntryModel (timeEntryList[0]);
+                Model = new TimeEntryModel (timeEntryList[0]);
             }
 
-            await model.LoadAsync();
+            await Model.LoadAsync();
 
-            if (model.Workspace == null || model.Workspace.Id == Guid.Empty) {
-                model = null;
+            if (Model.Workspace == null || Model.Workspace.Id == Guid.Empty) {
+                Model = null;
             }
 
             IsLoading = false;
@@ -80,19 +80,44 @@ namespace Toggl.Phoebe.Data.ViewModels
 
         public async Task SaveModelAsync (ProjectModel project, WorkspaceModel workspace, TaskData task = null)
         {
-            model.Project = project;
-            model.Workspace = workspace;
+            Model.Project = project;
+            Model.Workspace = workspace;
             if (task != null) {
-                model.Task = new TaskModel (task);
+                Model.Task = new TaskModel (task);
             }
 
-            await model.SaveAsync();
+            await Model.SaveAsync();
         }
 
         public void Dispose()
         {
             projectList.Dispose();
-            model = null;
+            Model = null;
+        }
+
+        public async void Finish (TaskModel task = null, ProjectModel project = null, WorkspaceModel workspace = null)
+        {
+            project = task != null ? task.Project : project;
+            if (project != null) {
+                await project.LoadAsync();
+                workspace = project.Workspace;
+            }
+
+            if (project != null || task != null || workspace != null) {
+                Model.Workspace = workspace;
+                Model.Project = project;
+                Model.Task = task;
+                await Model.SaveAsync();
+            }
+
+            if (this.navigateBackAction != null) {
+                this.navigateBackAction();
+            }
+        }
+
+        public void SetNavigateBack (Action action)
+        {
+            this.navigateBackAction = action;
         }
     }
 }
