@@ -10,6 +10,7 @@ using Toggl.Phoebe.Data.Utils;
 using XPlatUtils;
 using Toggl.Ross.Data;
 using Toggl.Ross.Theme;
+using Toggl.Ross.ViewControllers.ProjectList;
 
 namespace Toggl.Ross.ViewControllers
 {
@@ -40,15 +41,15 @@ namespace Toggl.Ross.ViewControllers
 
             // Lazyily create views
             if (durationButton == null) {
-                durationButton = new UIButton ().Apply (Style.NavTimer.DurationButton);
+                durationButton = new UIButton().Apply (Style.NavTimer.DurationButton);
                 durationButton.SetTitle (DefaultDurationText, UIControlState.Normal); // Dummy content to use for sizing of the label
-                durationButton.SizeToFit ();
+                durationButton.SizeToFit();
                 durationButton.TouchUpInside += OnDurationButtonTouchUpInside;
             }
 
             if (navigationButton == null) {
-                actionButton = new UIButton ().Apply (Style.NavTimer.StartButton);
-                actionButton.SizeToFit ();
+                actionButton = new UIButton().Apply (Style.NavTimer.StartButton);
+                actionButton.SizeToFit();
                 actionButton.TouchUpInside += OnActionButtonTouchUpInside;
                 navigationButton = new UIBarButtonItem (actionButton);
             }
@@ -74,7 +75,7 @@ namespace Toggl.Ross.ViewControllers
 
             try {
                 if (currentTimeEntry != null && currentTimeEntry.State == TimeEntryState.Running) {
-                    await currentTimeEntry.StopAsync ();
+                    await currentTimeEntry.StopAsync();
 
                     // Ping analytics
                     ServiceContainer.Resolve<ITracker>().SendTimerStopEvent (TimerStopSource.App);
@@ -84,14 +85,14 @@ namespace Toggl.Ross.ViewControllers
                         return;
                     }
 
-                    await currentTimeEntry.StartAsync ();
+                    await currentTimeEntry.StartAsync();
 
                     var controllers = new List<UIViewController> (parentController.NavigationController.ViewControllers);
                     controllers.Add (new EditTimeEntryViewController (currentTimeEntry));
-                    if (ServiceContainer.Resolve<SettingsStore> ().ChooseProjectForNew) {
+                    if (ServiceContainer.Resolve<SettingsStore>().ChooseProjectForNew) {
                         controllers.Add (new ProjectSelectionViewController (currentTimeEntry));
                     }
-                    parentController.NavigationController.SetViewControllers (controllers.ToArray (), true);
+                    parentController.NavigationController.SetViewControllers (controllers.ToArray(), true);
 
                     // Ping analytics
                     ServiceContainer.Resolve<ITracker>().SendTimerStartEvent (TimerStartSource.AppNew);
@@ -101,13 +102,13 @@ namespace Toggl.Ross.ViewControllers
             }
         }
 
-        private void Rebind ()
+        private void Rebind()
         {
             if (!isStarted) {
                 return;
             }
 
-            ResetTrackedObservables ();
+            ResetTrackedObservables();
 
             rebindCounter++;
 
@@ -116,7 +117,7 @@ namespace Toggl.Ross.ViewControllers
                 actionButton.Apply (Style.NavTimer.StartButton);
                 actionButton.Hidden = false;
             } else {
-                var duration = currentTimeEntry.GetDuration ();
+                var duration = currentTimeEntry.GetDuration();
 
                 durationButton.SetTitle (duration.ToString (@"hh\:mm\:ss"), UIControlState.Normal);
                 actionButton.Apply (Style.NavTimer.StopButton);
@@ -127,25 +128,25 @@ namespace Toggl.Ross.ViewControllers
                     TimeSpan.FromMilliseconds (1000 - duration.Milliseconds),
                 delegate {
                     if (counter == rebindCounter) {
-                        Rebind ();
+                        Rebind();
                     }
                 });
             }
         }
 
-        private void ResetTrackedObservables ()
+        private void ResetTrackedObservables()
         {
             if (propertyTracker == null) {
                 return;
             }
 
-            propertyTracker.MarkAllStale ();
+            propertyTracker.MarkAllStale();
 
             if (currentTimeEntry != null) {
                 propertyTracker.Add (currentTimeEntry, HandleTimeEntryPropertyChanged);
             }
 
-            propertyTracker.ClearStale ();
+            propertyTracker.ClearStale();
         }
 
         private void HandleTimeEntryPropertyChanged (string prop)
@@ -153,19 +154,19 @@ namespace Toggl.Ross.ViewControllers
             if (prop == TimeEntryModel.PropertyState
                     || prop == TimeEntryModel.PropertyStartTime
                     || prop == TimeEntryModel.PropertyStopTime) {
-                Rebind ();
+                Rebind();
             }
         }
 
         private void OnTimeEntryManagerPropertyChanged (object sender, PropertyChangedEventArgs args)
         {
             if (args.PropertyName == ActiveTimeEntryManager.PropertyRunning) {
-                ResetModelToRunning ();
-                Rebind ();
+                ResetModelToRunning();
+                Rebind();
             }
         }
 
-        private void ResetModelToRunning ()
+        private void ResetModelToRunning()
         {
             if (timeEntryManager == null) {
                 return;
@@ -180,28 +181,28 @@ namespace Toggl.Ross.ViewControllers
             }
         }
 
-        public void Start ()
+        public void Start()
         {
-            propertyTracker = new PropertyChangeTracker ();
+            propertyTracker = new PropertyChangeTracker();
 
             // Start listening to timer changes
             if (showRunning) {
-                timeEntryManager = ServiceContainer.Resolve<ActiveTimeEntryManager> ();
+                timeEntryManager = ServiceContainer.Resolve<ActiveTimeEntryManager>();
                 timeEntryManager.PropertyChanged += OnTimeEntryManagerPropertyChanged;
-                ResetModelToRunning ();
+                ResetModelToRunning();
             }
 
             isStarted = true;
-            Rebind ();
+            Rebind();
         }
 
-        public void Stop ()
+        public void Stop()
         {
             // Stop listening to timer changes
             isStarted = false;
 
             if (propertyTracker != null) {
-                propertyTracker.Dispose ();
+                propertyTracker.Dispose();
                 propertyTracker = null;
             }
 

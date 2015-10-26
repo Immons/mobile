@@ -20,13 +20,13 @@ namespace Toggl.Phoebe.Data.ViewModels
         private WorkspaceProjectsView projectList;
         private IList<string> timeEntryIds;
 
-        public ProjectListViewModel(IList<TimeEntryData> timeEntryList)
+        public ProjectListViewModel (IList<TimeEntryData> timeEntryList)
         {
             this.timeEntryList = timeEntryList;
             ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
         }
 
-        public ProjectListViewModel(IList<string> timeEntryIds)
+        public ProjectListViewModel (IList<string> timeEntryIds)
         {
             this.timeEntryIds = timeEntryIds;
             ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
@@ -38,10 +38,8 @@ namespace Toggl.Phoebe.Data.ViewModels
 
         public WorkspaceProjectsView ProjectList
         {
-            get
-            {
-                if (projectList == null)
-                {
+            get {
+                if (projectList == null) {
                     projectList = new WorkspaceProjectsView();
                 }
 
@@ -51,8 +49,7 @@ namespace Toggl.Phoebe.Data.ViewModels
 
         public IList<TimeEntryData> TimeEntryList
         {
-            get
-            {
+            get {
                 return timeEntryList;
             }
         }
@@ -61,38 +58,32 @@ namespace Toggl.Phoebe.Data.ViewModels
         {
             IsLoading = true;
 
-            if (timeEntryList == null)
-            {
-                timeEntryList = await TimeEntryGroup.GetTimeEntryDataList(timeEntryIds);
+            if (timeEntryList == null) {
+                timeEntryList = await TimeEntryGroup.GetTimeEntryDataList (timeEntryIds);
             }
 
             // Create model.
-            if (timeEntryList.Count > 1)
-            {
-                model = new TimeEntryGroup(timeEntryList);
-            }
-            else if (timeEntryList.Count == 1)
-            {
-                model = new TimeEntryModel(timeEntryList[0]);
+            if (timeEntryList.Count > 1) {
+                model = new TimeEntryGroup (timeEntryList);
+            } else if (timeEntryList.Count == 1) {
+                model = new TimeEntryModel (timeEntryList[0]);
             }
 
             await model.LoadAsync();
 
-            if (model.Workspace == null || model.Workspace.Id == Guid.Empty)
-            {
+            if (model.Workspace == null || model.Workspace.Id == Guid.Empty) {
                 model = null;
             }
 
             IsLoading = false;
         }
 
-        public async Task SaveModelAsync(ProjectModel project, WorkspaceModel workspace, TaskData task = null)
+        public async Task SaveModelAsync (ProjectModel project, WorkspaceModel workspace, TaskData task = null)
         {
             model.Project = project;
             model.Workspace = workspace;
-            if (task != null)
-            {
-                model.Task = new TaskModel(task);
+            if (task != null) {
+                model.Task = new TaskModel (task);
             }
 
             await model.SaveAsync();

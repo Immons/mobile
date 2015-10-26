@@ -249,7 +249,6 @@
     <Compile Include="Views\TextField.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="NSDateExtensions.cs" />
-    <Compile Include="ViewControllers\ProjectSelectionViewController.cs" />
     <Compile Include="ViewControllers\FeedbackViewController.cs" />
     <Compile Include="Theme\Style.ProjectList.cs">
       <DependentUpon>Style.cs</DependentUpon>
@@ -320,6 +319,11 @@
     <Compile Include="Views\TableViewRefreshView.cs" />
     <Compile Include="ViewControllers\WebViewController.cs" />
     <Compile Include="Net\APNSManager.cs" />
+    <Compile Include="ViewControllers\ProjectList\ProjectSelectionViewController.cs" />
+    <Compile Include="ViewControllers\ProjectList\Source.cs" />
+    <Compile Include="ViewControllers\ProjectList\WorkspaceHeaderCell.cs" />
+    <Compile Include="ViewControllers\ProjectList\TaskCell.cs" />
+    <Compile Include="ViewControllers\ProjectList\ProjectCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Phoebe\Phoebe.iOS.csproj">
@@ -347,6 +351,7 @@
     <Folder Include="Analytics\" />
     <Folder Include="Logging\" />
     <Folder Include="Views\Charting\" />
+    <Folder Include="ViewControllers\ProjectList\" />
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Resources\Images.xcassets\AppIcons.appiconset\Contents.json" />

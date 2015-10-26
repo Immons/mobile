@@ -5,9 +5,14 @@ namespace Toggl.Ross.Views
 {
     public abstract class ModelTableViewCell<T> : BindableTableViewCell<T>
     {
-        private PropertyChangeTracker tracker = new PropertyChangeTracker ();
+        private PropertyChangeTracker tracker = new PropertyChangeTracker();
 
-        protected ModelTableViewCell (IntPtr handle) : base (handle)
+        protected ModelTableViewCell()
+        {
+        }
+
+        protected ModelTableViewCell (IntPtr handle)
+        : base (handle)
         {
         }
 
@@ -15,7 +20,7 @@ namespace Toggl.Ross.Views
         {
             if (disposing) {
                 if (tracker != null) {
-                    tracker.Dispose ();
+                    tracker.Dispose();
                     tracker = null;
                 }
             }
@@ -28,6 +33,6 @@ namespace Toggl.Ross.Views
             get { return tracker; }
         }
 
-        protected abstract void ResetTrackedObservables ();
+        protected abstract void ResetTrackedObservables();
     }
 }

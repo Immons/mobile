@@ -9,6 +9,7 @@ using Toggl.Phoebe.Net;
 using Toggl.Ross.ViewControllers;
 using UIKit;
 using XPlatUtils;
+using Toggl.Ross.ViewControllers.ProjectList;
 
 namespace Toggl.Ross.Data
 {
@@ -38,7 +39,7 @@ namespace Toggl.Ross.Data
             }
         }
 
-        public WidgetUpdateService ()
+        public WidgetUpdateService()
         {
             // Update auth state from platform service.
             //
@@ -131,17 +132,17 @@ namespace Toggl.Ross.Data
                 // Get current VC's navigation
                 var controllers = new List<UIViewController> (topVCList[0].NavigationController.ViewControllers);
                 controllers.Add (new EditTimeEntryViewController (currentTimeEntry));
-                if (ServiceContainer.Resolve<SettingsStore> ().ChooseProjectForNew) {
+                if (ServiceContainer.Resolve<SettingsStore>().ChooseProjectForNew) {
                     controllers.Add (new ProjectSelectionViewController (currentTimeEntry));
                 }
-                topVCList[0].NavigationController.SetViewControllers (controllers.ToArray (), true);
+                topVCList[0].NavigationController.SetViewControllers (controllers.ToArray(), true);
             }
         }
 
         public void UpdateWidgetContent()
         {
-            if (ServiceContainer.Resolve<IPlatformInfo> ().IsWidgetAvailable) {
-                var controller = NCWidgetController.GetWidgetController ();
+            if (ServiceContainer.Resolve<IPlatformInfo>().IsWidgetAvailable) {
+                var controller = NCWidgetController.GetWidgetController();
                 controller.SetHasContent (true, NSBundle.MainBundle.BundleIdentifier + ".today");
             }
         }
