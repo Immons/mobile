@@ -324,6 +324,7 @@
     <Compile Include="ViewControllers\ProjectList\WorkspaceHeaderCell.cs" />
     <Compile Include="ViewControllers\ProjectList\TaskCell.cs" />
     <Compile Include="ViewControllers\ProjectList\ProjectCell.cs" />
+    <Compile Include="ViewControllers\ProjectList\ProjectListTableViewSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Phoebe\Phoebe.iOS.csproj">

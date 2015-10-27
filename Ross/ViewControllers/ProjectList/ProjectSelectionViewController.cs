@@ -15,8 +15,8 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         private readonly TimeEntryModel model;
         private Source source;
 
-        public ProjectSelectionViewController (TimeEntryModel model)
-        : base (UITableViewStyle.Plain)
+        public ProjectSelectionViewController(TimeEntryModel model)
+            : base(UITableViewStyle.Plain)
         {
             this.model = model;
 
@@ -25,33 +25,40 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         public ProjectListViewModel ViewModel { get; set; }
 
+        private ProjectListTableViewSource ProjectListTableViewSource { get; set; }
+
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
             var array = new [] { model.Id.ToString() };
-            var timeEntryIds = new List<string> (array);
-            this.ViewModel = new ProjectListViewModel (timeEntryIds);
+            var timeEntryIds = new List<string>(array);
+            this.ViewModel = new ProjectListViewModel(timeEntryIds);
 
             this.ViewModel.Model = this.model;
-            this.ViewModel.SetNavigateBack (NavigateBack);
+            this.ViewModel.SetNavigateBack(NavigateBack);
 
-            View.Apply (Style.Screen);
+            View.Apply(Style.Screen);
             EdgesForExtendedLayout = UIRectEdge.None;
-            source = new Source (this.TableView, this.ViewModel);
+            source = new Source(this.TableView, this.ViewModel);
             source.Attach();
 
-            this.ViewModel.ShowNewProjectEvent += (sender, e) => this.NavigateToNewProject (e);
+            ProjectListTableViewSource = new ProjectListTableViewSource(this.TableView);
+//            this.TableView.Source = ProjectListTableViewSource;
+
+            this.ViewModel.ShowNewProjectEvent += (sender, e) => this.NavigateToNewProject(e);
+
+            CreateBindingSet();
         }
 
         private void CreateBindingSet()
         {
-//            Binding.Create(() => );
+            Binding.Create(() => this.ViewModel.ProjectList == ProjectListTableViewSource.ProjectList);
         }
 
-        public override void ViewDidAppear (bool animated)
+        public override void ViewDidAppear(bool animated)
         {
-            base.ViewDidAppear (animated);
+            base.ViewDidAppear(animated);
 
             ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
         }
@@ -60,15 +67,16 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         {
             // Pop to previous view controller
             var vc = NavigationController.ViewControllers;
-            var i = Array.IndexOf (vc, this) - 1;
-            if (i >= 0) {
-                NavigationController.PopToViewController (vc[i], true);
+            var i = Array.IndexOf(vc, this) - 1;
+            if (i >= 0)
+            {
+                NavigationController.PopToViewController(vc[i], true);
             }
         }
 
-        private void NavigateToNewProject (object view)
+        private void NavigateToNewProject(object view)
         {
-            this.NavigationController.PushViewController (view as UIViewController, true);
+            this.NavigationController.PushViewController(view as UIViewController, true);
         }
     }
 }
