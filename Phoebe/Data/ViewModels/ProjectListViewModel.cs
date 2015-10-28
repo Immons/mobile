@@ -26,21 +26,20 @@ namespace Toggl.Phoebe.Data.ViewModels
         private IList<string> timeEntryIds;
         private Action navigateBackAction;
 
-        public ProjectListViewModel(IList<TimeEntryData> timeEntryList)
+        public ProjectListViewModel (IList<TimeEntryData> timeEntryList)
         {
             this.timeEntryList = timeEntryList;
             ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
         }
 
-        public ProjectListViewModel(IList<string> timeEntryIds)
+        public ProjectListViewModel (IList<string> timeEntryIds)
         {
             this.timeEntryIds = timeEntryIds;
             ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
 
-            ProjectList.CollectionChanged += (sender, e) =>
-            {
+            ProjectList.CollectionChanged += (sender, e) => {
                 //needed because in current logic, there is no INotifyPropertyChanged for Data object
-                OnPropertyChanged("ProjectList");
+                OnPropertyChanged ("ProjectList");
             };
         }
 
@@ -52,25 +51,20 @@ namespace Toggl.Phoebe.Data.ViewModels
 
         public WorkspaceProjectsView ProjectList
         {
-            get
-            {
-                if (projectList == null)
-                {
+            get {
+                if (projectList == null) {
                     projectList = new WorkspaceProjectsView();
                 }
 
                 return projectList;
-            }
-            set
-            {
+            } set {
 
             }
         }
 
         public IList<TimeEntryData> TimeEntryList
         {
-            get
-            {
+            get {
                 return timeEntryList;
             }
         }
@@ -79,38 +73,32 @@ namespace Toggl.Phoebe.Data.ViewModels
         {
             IsLoading = true;
 
-            if (timeEntryList == null)
-            {
-                timeEntryList = await TimeEntryGroup.GetTimeEntryDataList(timeEntryIds);
+            if (timeEntryList == null) {
+                timeEntryList = await TimeEntryGroup.GetTimeEntryDataList (timeEntryIds);
             }
 
             // Create model.
-            if (timeEntryList.Count > 1)
-            {
-                Model = new TimeEntryGroup(timeEntryList);
-            }
-            else if (timeEntryList.Count == 1)
-            {
-                Model = new TimeEntryModel(timeEntryList[0]);
+            if (timeEntryList.Count > 1) {
+                Model = new TimeEntryGroup (timeEntryList);
+            } else if (timeEntryList.Count == 1) {
+                Model = new TimeEntryModel (timeEntryList[0]);
             }
 
             await Model.LoadAsync();
 
-            if (Model.Workspace == null || Model.Workspace.Id == Guid.Empty)
-            {
+            if (Model.Workspace == null || Model.Workspace.Id == Guid.Empty) {
                 Model = null;
             }
 
             IsLoading = false;
         }
 
-        public async Task SaveModelAsync(ProjectModel project, WorkspaceModel workspace, TaskData task = null)
+        public async Task SaveModelAsync (ProjectModel project, WorkspaceModel workspace, TaskData task = null)
         {
             Model.Project = project;
             Model.Workspace = workspace;
-            if (task != null)
-            {
-                Model.Task = new TaskModel(task);
+            if (task != null) {
+                Model.Task = new TaskModel (task);
             }
 
             await Model.SaveAsync();
@@ -122,39 +110,35 @@ namespace Toggl.Phoebe.Data.ViewModels
             Model = null;
         }
 
-        public async void Finish(TaskModel task = null, ProjectModel project = null, WorkspaceModel workspace = null)
+        public async void Finish (TaskModel task = null, ProjectModel project = null, WorkspaceModel workspace = null)
         {
             project = task != null ? task.Project : project;
-            if (project != null)
-            {
+            if (project != null) {
                 await project.LoadAsync();
                 workspace = project.Workspace;
             }
 
-            if (project != null || task != null || workspace != null)
-            {
+            if (project != null || task != null || workspace != null) {
                 Model.Workspace = workspace;
                 Model.Project = project;
                 Model.Task = task;
                 await Model.SaveAsync();
             }
 
-            if (this.navigateBackAction != null)
-            {
+            if (this.navigateBackAction != null) {
                 this.navigateBackAction();
             }
         }
 
-        public void SetNavigateBack(Action action)
+        public void SetNavigateBack (Action action)
         {
             this.navigateBackAction = action;
         }
 
-        public void ShowNewProject(object view)
+        public void ShowNewProject (object view)
         {
-            if (this.ShowNewProjectEvent != null)
-            {
-                this.ShowNewProjectEvent(this, view);
+            if (this.ShowNewProjectEvent != null) {
+                this.ShowNewProjectEvent (this, view);
             }
         }
 
@@ -162,11 +146,10 @@ namespace Toggl.Phoebe.Data.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void OnPropertyChanged([CallerMemberName] string name = "")
+        public void OnPropertyChanged ([CallerMemberName] string name = "")
         {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(name));
+            if (PropertyChanged != null) {
+                PropertyChanged (this, new PropertyChangedEventArgs (name));
             }
         }
 

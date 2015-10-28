@@ -8,6 +8,7 @@ using Toggl.Ross.Theme;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using Toggl.Ross.DataSources;
 
 namespace Toggl.Ross.ViewControllers.ProjectList
 {
@@ -23,8 +24,9 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         public ProjectListTableViewSource (UITableView tableView)
         {
-            data = new List<object>();
+            this.data = new List<object>();
             this.tableView = tableView;
+            this.Attach();
         }
 
         public WorkspaceProjectsView ProjectList
@@ -61,7 +63,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         public override nfloat GetHeightForRow (UITableView tableView, NSIndexPath indexPath)
         {
             var row = ProjectList.Data.ToList()[indexPath.Row];
-            if (row is ProjectAndTaskView.Workspace) {
+            if (row is WorkspaceProjectsView.Workspace) {
                 return 42f;
             }
             if (row is TaskModel) {
@@ -84,7 +86,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         {
             var row = data[indexPath.Row];
 
-            var project = row as ProjectAndTaskView.Project;
+            var project = row as WorkspaceProjectsView.Project;
             if (project != null) {
                 var cell = (ProjectCell)tableView.DequeueReusableCell (ProjectCellId, indexPath);
                 cell.Bind (project);

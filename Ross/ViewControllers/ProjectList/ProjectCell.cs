@@ -10,7 +10,7 @@ using UIKit;
 
 namespace Toggl.Ross.ViewControllers.ProjectList
 {
-    public class ProjectCell : ModelTableViewCell<ProjectAndTaskView.Project>
+    public class ProjectCell : ModelTableViewCell<WorkspaceProjectsView.Project>
     {
         private const float CellSpacing = 4f;
         private UIView textContentView;

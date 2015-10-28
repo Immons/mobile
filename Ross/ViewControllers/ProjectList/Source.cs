@@ -82,7 +82,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         {
             var row = GetRow (indexPath);
 
-            var project = row as ProjectAndTaskView.Project;
+            var project = row as WorkspaceProjectsView.Project;
             if (project != null) {
                 var cell = (ProjectCell)tableView.DequeueReusableCell (ProjectCellId, indexPath);
                 cell.Bind (project);
