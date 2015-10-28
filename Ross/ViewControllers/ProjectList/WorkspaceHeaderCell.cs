@@ -8,11 +8,11 @@ using UIKit;
 
 namespace Toggl.Ross.ViewControllers.ProjectList
 {
-    public class WorkspaceHeaderCell : ModelTableViewCell<ProjectAndTaskView.Workspace>
+    public class WorkspaceHeaderCell : UITableViewCell
     {
         private const float HorizSpacing = 15f;
         private readonly UILabel nameLabel;
-        private WorkspaceModel model;
+        //        private WorkspaceModel model;
 
         public WorkspaceHeaderCell (IntPtr handle)
         : base (handle)
@@ -23,16 +23,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
             BackgroundView = new UIView().Apply (Style.ProjectList.HeaderBackgroundView);
             UserInteractionEnabled = false;
-        }
-
-        protected override void OnDataSourceChanged()
-        {
-            model = null;
-            if (DataSource != null) {
-                model = (WorkspaceModel)DataSource.Data;
-            }
-
-            base.OnDataSourceChanged();
         }
 
         public override void LayoutSubviews()
@@ -48,28 +38,15 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             );
         }
 
-        protected override void ResetTrackedObservables()
-        {
-            Tracker.MarkAllStale();
-
-            if (model != null) {
-                Tracker.Add (model, HandleClientPropertyChanged);
-            }
-
-            Tracker.ClearStale();
-        }
-
         private void HandleClientPropertyChanged (string prop)
         {
             if (prop == WorkspaceModel.PropertyName) {
-                Rebind();
+                PopulateCell();
             }
         }
 
-        protected override void Rebind()
+        public void PopulateCell()
         {
-            ResetTrackedObservables();
-
             if (model != null) {
                 nameLabel.Text = model.Name;
             }

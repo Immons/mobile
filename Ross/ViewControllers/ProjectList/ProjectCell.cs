@@ -10,14 +10,14 @@ using UIKit;
 
 namespace Toggl.Ross.ViewControllers.ProjectList
 {
-    public class ProjectCell : ModelTableViewCell<WorkspaceProjectsView.Project>
+    public class ProjectCell : UITableViewCell
     {
         private const float CellSpacing = 4f;
         private UIView textContentView;
         private UILabel projectLabel;
         private UILabel clientLabel;
         private UIButton tasksButton;
-        private ProjectModel model;
+        //        private ProjectModel model;
 
         public ProjectCell (IntPtr handle)
         : base (handle)
@@ -48,16 +48,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             textContentView.Layer.Mask = maskLayer;
 
             tasksButton.TouchUpInside += OnTasksButtonTouchUpInside;
-        }
-
-        protected override void OnDataSourceChanged()
-        {
-            model = null;
-            if (DataSource != null) {
-                model = (ProjectModel)DataSource.Data;
-            }
-
-            base.OnDataSourceChanged();
         }
 
         private void OnTasksButtonTouchUpInside (object sender, EventArgs e)
@@ -137,41 +127,24 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             return rect;
         }
 
-        protected override void ResetTrackedObservables()
-        {
-            Tracker.MarkAllStale();
-
-            if (model != null) {
-                Tracker.Add (model, HandleProjectPropertyChanged);
-
-                if (model.Client != null) {
-                    Tracker.Add (model.Client, HandleClientPropertyChanged);
-                }
-            }
-
-            Tracker.ClearStale();
-        }
-
         private void HandleProjectPropertyChanged (string prop)
         {
             if (prop == ProjectModel.PropertyClient
                     || prop == ProjectModel.PropertyName
                     || prop == ProjectModel.PropertyColor) {
-                Rebind();
+                PopulateCell();
             }
         }
 
         private void HandleClientPropertyChanged (string prop)
         {
             if (prop == ClientModel.PropertyName) {
-                Rebind();
+                PopulateCell();
             }
         }
 
-        protected override void Rebind()
+        public void PopulateCell()
         {
-            ResetTrackedObservables();
-
             UIColor projectColor;
             string projectName;
             string clientName = String.Empty;

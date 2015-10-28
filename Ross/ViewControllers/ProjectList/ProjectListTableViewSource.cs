@@ -88,36 +88,50 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
             var project = row as WorkspaceProjectsView.Project;
             if (project != null) {
-                var cell = (ProjectCell)tableView.DequeueReusableCell (ProjectCellId, indexPath);
-                cell.Bind (project);
-                if (project.Data != null && project.Data.Id != Guid.Empty) {
-                    var projectId = project.Data.Id;
-//                    cell.ToggleTasks = () => ToggleTasksExpanded(projectId);
-                } else {
-                    cell.ToggleTasks = null;
-                }
-                return cell;
+                return CreateProjectCell (project, indexPath);
             }
 
             var taskData = row as TaskData;
             if (taskData != null) {
-                var cell = (TaskCell)tableView.DequeueReusableCell (TaskCellId, indexPath);
-                cell.Bind ((TaskModel)taskData);
-
-//                var rows = GetCachedRows(GetSection(indexPath.Section));
-//                cell.IsFirst = indexPath.Row < 1 || !(rows[indexPath.Row - 1] is TaskModel);
-//                cell.IsLast = indexPath.Row >= rows.Count || !(rows[indexPath.Row + 1] is TaskModel);
-                return cell;
+                return CreateTaskCell ((TaskModel)taskData, indexPath);
             }
 
-            var workspace = row as ProjectAndTaskView.Workspace;
+            var workspace = row as WorkspaceProjectsView.Workspace;
             if (workspace != null) {
-                var cell = (WorkspaceHeaderCell)tableView.DequeueReusableCell (WorkspaceHeaderId, indexPath);
-                cell.Bind (workspace);
-                return cell;
+                return CreateWorkspaceCell (workspace, indexPath);
             }
 
             throw new InvalidOperationException (String.Format ("Unknown row type {0}", row.GetType()));
+        }
+
+        private UITableViewCell CreateTaskCell (TaskModel taskModel, NSIndexPath indexPath)
+        {
+            var cell = (TaskCell)tableView.DequeueReusableCell (TaskCellId, indexPath);
+//            var rows = GetCachedRows(GetSection(indexPath.Section));
+//            cell.IsFirst = indexPath.Row < 1 || !(rows[indexPath.Row - 1] is TaskModel);
+//            cell.IsLast = indexPath.Row >= rows.Count || !(rows[indexPath.Row + 1] is TaskModel);
+            return cell;
+        }
+
+        private UITableViewCell CreateWorkspaceCell (WorkspaceProjectsView.Workspace workspace, NSIndexPath indexPath)
+        {
+            var cell = (WorkspaceHeaderCell)tableView.DequeueReusableCell (WorkspaceHeaderId, indexPath);
+
+            return cell;
+        }
+
+        private UITableViewCell CreateProjectCell (WorkspaceProjectsView.Project project, NSIndexPath indexPath)
+        {
+            var cell = (ProjectCell)tableView.DequeueReusableCell (ProjectCellId, indexPath);
+
+            if (project.Data != null && project.Data.Id != Guid.Empty) {
+                var projectId = project.Data.Id;
+//                cell.ToggleTasks = () => ToggleTasksExpanded(projectId);
+            } else {
+                cell.ToggleTasks = null;
+            }
+
+            return cell;
         }
 
         public override UIView GetViewForHeader (UITableView tableView, nint section)
@@ -137,8 +151,8 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             if (m is TaskData) {
                 var data = (TaskData)m;
 //                viewModel.Finish((TaskModel)data);
-            } else if (m is ProjectAndTaskView.Project) {
-                var wrap = (ProjectAndTaskView.Project)m;
+            } else if (m is WorkspaceProjectsView.Project) {
+                var wrap = (WorkspaceProjectsView.Project)m;
                 if (wrap.IsNoProject) {
 //                    viewModel.Finish(workspace: new WorkspaceModel(wrap.WorkspaceId));
                 } else if (wrap.IsNewProject) {
@@ -153,7 +167,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
                 } else {
 //                    viewModel.Finish(project: (ProjectModel)wrap.Data);
                 }
-            } else if (m is ProjectAndTaskView.Workspace) {
+            } else if (m is WorkspaceProjectsView.Workspace) {
                 var wrap = (ProjectAndTaskView.Workspace)m;
 //                viewModel.Finish(workspace: (WorkspaceModel)wrap.Data);
             }
