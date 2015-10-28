@@ -225,15 +225,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
                 var wrap = (WorkspaceProjectsView.Project)m;
                 if (wrap.IsNoProject) {
                     WorkspaceSelected (this, new WorkspaceModel (wrap.WorkspaceId));
-                } else if (wrap.IsNewProject) {
-                    var proj = (ProjectModel)wrap.Data;
-                    // Show create project dialog instead
-
-                    var newProjectViewController = new NewProjectViewController (proj.Workspace, proj.Color) {
-//                        ProjectCreated = (p) => viewModel.Finish(project: p),
-                    };
-
-//                    this.viewModel.ShowNewProject(newProjectViewController);
                 } else {
                     ProjectSelected (this, (ProjectModel)wrap.Data);
                 }

@@ -7,6 +7,7 @@ using XPlatUtils;
 using Toggl.Phoebe.Data.ViewModels;
 using System.Collections.Generic;
 using Toggl.Phoebe.Contrib.Bind;
+using System.Linq;
 
 namespace Toggl.Ross.ViewControllers.ProjectList
 {
@@ -40,8 +41,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
             View.Apply (Style.Screen);
             EdgesForExtendedLayout = UIRectEdge.None;
-//            source = new Source(this.TableView, this.ViewModel);
-//            source.Attach();
 
             ProjectListTableViewSource = new ProjectListTableViewSource (this.TableView);
             this.ProjectListTableViewSource.TaskSelected += (sender, e) => ViewModel.Finish (e);
@@ -65,10 +64,10 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         private void OnNavigationBarAddClicked (object sender, EventArgs e)
         {
-//            var proj = (ProjectModel)wrap.Data;
-            // Show create project dialog instead
+            //TODO this is for sure not right method to get WorkspaceId
+            var test = ViewModel.ProjectList.Workspaces.Last().Clients.Last().WorkspaceId;
 
-            var newProjectViewController = new NewProjectViewController (new WorkspaceModel(), 12387342) {
+            var newProjectViewController = new NewProjectViewController (new WorkspaceModel (test), 0) {
                 ProjectCreated = (p) => ViewModel.Finish (project: p),
             };
 
