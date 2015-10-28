@@ -13,7 +13,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
     public class ProjectSelectionViewController : UITableViewController
     {
         private readonly TimeEntryModel model;
-        private Source source;
+        //        private Source source;
 
         public ProjectSelectionViewController (TimeEntryModel model)
         : base (UITableViewStyle.Plain)

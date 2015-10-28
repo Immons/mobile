@@ -110,12 +110,22 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 //            var rows = GetCachedRows(GetSection(indexPath.Section));
 //            cell.IsFirst = indexPath.Row < 1 || !(rows[indexPath.Row - 1] is TaskModel);
 //            cell.IsLast = indexPath.Row >= rows.Count || !(rows[indexPath.Row + 1] is TaskModel);
+
+            var taskName = taskModel.Name;
+            if (String.IsNullOrWhiteSpace (taskName)) {
+                taskName = "ProjectNoNameTask".Tr();
+            }
+
+            cell.NameLabel.Text = taskName;
+
             return cell;
         }
 
         private UITableViewCell CreateWorkspaceCell (WorkspaceProjectsView.Workspace workspace, NSIndexPath indexPath)
         {
             var cell = (WorkspaceHeaderCell)tableView.DequeueReusableCell (WorkspaceHeaderId, indexPath);
+
+            cell.NameLabel.Text = workspace.Data.Name;
 
             return cell;
         }

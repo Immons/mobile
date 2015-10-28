@@ -1,9 +1,6 @@
 using System;
 using CoreGraphics;
-using Toggl.Phoebe.Data.Models;
-using Toggl.Phoebe.Data.Views;
 using Toggl.Ross.Theme;
-using Toggl.Ross.Views;
 using UIKit;
 
 namespace Toggl.Ross.ViewControllers.ProjectList
@@ -12,7 +9,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
     {
         private const float HorizSpacing = 15f;
         private readonly UILabel nameLabel;
-        //        private WorkspaceModel model;
 
         public WorkspaceHeaderCell (IntPtr handle)
         : base (handle)
@@ -23,6 +19,11 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
             BackgroundView = new UIView().Apply (Style.ProjectList.HeaderBackgroundView);
             UserInteractionEnabled = false;
+        }
+
+        public UILabel NameLabel
+        {
+            get { return nameLabel; }
         }
 
         public override void LayoutSubviews()
@@ -36,20 +37,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
                 width: contentFrame.Width - 2 * HorizSpacing,
                 height: contentFrame.Height
             );
-        }
-
-        private void HandleClientPropertyChanged (string prop)
-        {
-            if (prop == WorkspaceModel.PropertyName) {
-                PopulateCell();
-            }
-        }
-
-        public void PopulateCell()
-        {
-            if (model != null) {
-                nameLabel.Text = model.Name;
-            }
         }
     }
 }

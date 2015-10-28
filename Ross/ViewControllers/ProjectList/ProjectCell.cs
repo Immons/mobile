@@ -17,7 +17,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         private UILabel projectLabel;
         private UILabel clientLabel;
         private UIButton tasksButton;
-        //        private ProjectModel model;
 
         public ProjectCell (IntPtr handle)
         : base (handle)
