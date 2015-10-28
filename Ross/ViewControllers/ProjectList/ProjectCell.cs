@@ -2,10 +2,7 @@ using System;
 using CoreAnimation;
 using CoreGraphics;
 using Foundation;
-using Toggl.Phoebe.Data.Models;
-using Toggl.Phoebe.Data.Views;
 using Toggl.Ross.Theme;
-using Toggl.Ross.Views;
 using UIKit;
 
 namespace Toggl.Ross.ViewControllers.ProjectList
@@ -15,8 +12,8 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         private const float CellSpacing = 4f;
         private UIView textContentView;
         private UILabel projectLabel;
-        private UILabel clientLabel;
         private UIButton tasksButton;
+        private UILabel clientLabel;
 
         public ProjectCell (IntPtr handle)
         : base (handle)
@@ -47,6 +44,34 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             textContentView.Layer.Mask = maskLayer;
 
             tasksButton.TouchUpInside += OnTasksButtonTouchUpInside;
+        }
+
+        public UIView TextContentView
+        {
+            get {
+                return textContentView;
+            }
+        }
+
+        public UILabel ProjectLabel
+        {
+            get {
+                return projectLabel;
+            }
+        }
+
+        public UILabel ClientLabel
+        {
+            get {
+                return clientLabel;
+            }
+        }
+
+        public UIButton TasksButton
+        {
+            get {
+                return tasksButton;
+            }
         }
 
         private void OnTasksButtonTouchUpInside (object sender, EventArgs e)
@@ -124,77 +149,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
                            attrs, null);
             rect.Height = (float)Math.Ceiling (rect.Height);
             return rect;
-        }
-
-        private void HandleProjectPropertyChanged (string prop)
-        {
-            if (prop == ProjectModel.PropertyClient
-                    || prop == ProjectModel.PropertyName
-                    || prop == ProjectModel.PropertyColor) {
-                PopulateCell();
-            }
-        }
-
-        private void HandleClientPropertyChanged (string prop)
-        {
-            if (prop == ClientModel.PropertyName) {
-                PopulateCell();
-            }
-        }
-
-        public void PopulateCell()
-        {
-            UIColor projectColor;
-            string projectName;
-            string clientName = String.Empty;
-            int taskCount = 0;
-
-            if (DataSource.IsNoProject) {
-                projectColor = Color.Gray;
-                projectName = "ProjectNoProject".Tr();
-                projectLabel.Apply (Style.ProjectList.NoProjectLabel);
-            } else if (DataSource.IsNewProject) {
-                projectColor = Color.LightestGray;
-                projectName = "ProjectNewProject".Tr();
-                projectLabel.Apply (Style.ProjectList.NewProjectLabel);
-            } else if (model != null) {
-                projectColor = UIColor.Clear.FromHex (model.GetHexColor());
-
-                projectName = model.Name;
-                clientName = model.Client != null ? model.Client.Name : String.Empty;
-                taskCount = DataSource.Tasks.Count;
-                projectLabel.Apply (Style.ProjectList.ProjectLabel);
-            } else {
-                return;
-            }
-
-            if (String.IsNullOrWhiteSpace (projectName)) {
-                projectName = "ProjectNoNameProject".Tr();
-                clientName = String.Empty;
-            }
-
-            if (!String.IsNullOrWhiteSpace (projectName)) {
-                projectLabel.Text = projectName;
-                projectLabel.Hidden = false;
-
-                if (!String.IsNullOrEmpty (clientName)) {
-                    clientLabel.Text = clientName;
-                    clientLabel.Hidden = false;
-                } else {
-                    clientLabel.Hidden = true;
-                }
-            } else {
-                projectLabel.Hidden = true;
-                clientLabel.Hidden = true;
-            }
-
-            tasksButton.Hidden = taskCount < 1;
-            if (!tasksButton.Hidden) {
-                tasksButton.SetTitle (taskCount.ToString(), UIControlState.Normal);
-                tasksButton.SetTitleColor (projectColor, UIControlState.Normal);
-            }
-
-            BackgroundView.BackgroundColor = projectColor;
         }
     }
 }

@@ -141,7 +141,65 @@ namespace Toggl.Ross.ViewControllers.ProjectList
                 cell.ToggleTasks = null;
             }
 
+            PopulateProjectCell (project, cell);
+
             return cell;
+        }
+
+        private void PopulateProjectCell (WorkspaceProjectsView.Project project, ProjectCell cell)
+        {
+            UIColor projectColor;
+            string projectName;
+            string clientName = String.Empty;
+            int taskCount = 0;
+            var model = (ProjectModel)project.Data;
+
+            if (project.IsNoProject) {
+                projectColor = Color.Gray;
+                projectName = "ProjectNoProject".Tr();
+                cell.ProjectLabel.Apply (Style.ProjectList.NoProjectLabel);
+            } else if (project.IsNewProject) {
+                projectColor = Color.LightestGray;
+                projectName = "ProjectNewProject".Tr();
+                cell.ProjectLabel.Apply (Style.ProjectList.NewProjectLabel);
+            } else if (model != null) {
+                projectColor = UIColor.Clear.FromHex (model.GetHexColor());
+
+                projectName = project.Data.Name;
+                clientName = model.Client != null ? model.Client.Name : String.Empty;
+                taskCount = project.Tasks.Count;
+                cell.ProjectLabel.Apply (Style.ProjectList.ProjectLabel);
+            } else {
+                return;
+            }
+
+            if (String.IsNullOrWhiteSpace (projectName)) {
+                projectName = "ProjectNoNameProject".Tr();
+                clientName = String.Empty;
+            }
+
+            if (!String.IsNullOrWhiteSpace (projectName)) {
+                cell.ProjectLabel.Text = projectName;
+                cell.ProjectLabel.Hidden = false;
+
+                if (!String.IsNullOrEmpty (clientName)) {
+                    cell.ClientLabel.Text = clientName;
+                    cell.ClientLabel.Hidden = false;
+                } else {
+                    cell.ClientLabel.Hidden = true;
+                }
+            } else {
+                cell.ProjectLabel.Hidden = true;
+                cell.ClientLabel.Hidden = true;
+            }
+
+            cell.TasksButton.Hidden = taskCount < 1;
+            if (!cell.TasksButton.Hidden) {
+                cell.TasksButton.SetTitle (taskCount.ToString(), UIControlState.Normal);
+                cell.TasksButton.SetTitleColor (projectColor, UIControlState.Normal);
+            }
+
+            cell.BackgroundView.BackgroundColor = projectColor;
         }
 
         public override UIView GetViewForHeader (UITableView tableView, nint section)
