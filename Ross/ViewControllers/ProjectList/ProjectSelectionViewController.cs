@@ -44,11 +44,35 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 //            source.Attach();
 
             ProjectListTableViewSource = new ProjectListTableViewSource (this.TableView);
+            this.ProjectListTableViewSource.TaskSelected += (sender, e) => ViewModel.Finish (e);
+            this.ProjectListTableViewSource.ProjectSelected += (sender, e) => ViewModel.Finish (project: e);
+            this.ProjectListTableViewSource.WorkspaceSelected += (sender, e) => ViewModel.Finish (workspace: e);
+
             this.TableView.Source = ProjectListTableViewSource;
 
             this.ViewModel.ShowNewProjectEvent += (sender, e) => this.NavigateToNewProject (e);
 
             CreateBindingSet();
+            CreateNavBarButtonNewProject();
+        }
+
+        private void CreateNavBarButtonNewProject()
+        {
+            NavigationItem.RightBarButtonItem = new UIBarButtonItem (
+                "ClientNewClient".Tr(), UIBarButtonItemStyle.Plain, OnNavigationBarAddClicked)
+            .Apply (Style.NavLabelButton);
+        }
+
+        private void OnNavigationBarAddClicked (object sender, EventArgs e)
+        {
+//            var proj = (ProjectModel)wrap.Data;
+            // Show create project dialog instead
+
+            var newProjectViewController = new NewProjectViewController (new WorkspaceModel(), 12387342) {
+                ProjectCreated = (p) => ViewModel.Finish (project: p),
+            };
+
+            this.NavigateToNewProject (newProjectViewController);
         }
 
         private void CreateBindingSet()

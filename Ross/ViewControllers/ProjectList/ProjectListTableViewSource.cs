@@ -1,14 +1,12 @@
 ﻿using System;
-using UIKit;
-using Toggl.Phoebe.Data.Views;
+using System.Collections.Generic;
+using System.Linq;
 using Foundation;
 using Toggl.Phoebe.Data.DataObjects;
 using Toggl.Phoebe.Data.Models;
+using Toggl.Phoebe.Data.Views;
 using Toggl.Ross.Theme;
-using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
-using Toggl.Ross.DataSources;
+using UIKit;
 
 namespace Toggl.Ross.ViewControllers.ProjectList
 {
@@ -28,6 +26,10 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             this.tableView = tableView;
             this.Attach();
         }
+
+        public event EventHandler<TaskModel> TaskSelected;
+        public event EventHandler<ProjectModel> ProjectSelected;
+        public event EventHandler<WorkspaceModel> WorkspaceSelected;
 
         public WorkspaceProjectsView ProjectList
         {
@@ -218,11 +220,11 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
             if (m is TaskData) {
                 var data = (TaskData)m;
-//                viewModel.Finish((TaskModel)data);
+                TaskSelected (this, (TaskModel)data);
             } else if (m is WorkspaceProjectsView.Project) {
                 var wrap = (WorkspaceProjectsView.Project)m;
                 if (wrap.IsNoProject) {
-//                    viewModel.Finish(workspace: new WorkspaceModel(wrap.WorkspaceId));
+                    WorkspaceSelected (this, new WorkspaceModel (wrap.WorkspaceId));
                 } else if (wrap.IsNewProject) {
                     var proj = (ProjectModel)wrap.Data;
                     // Show create project dialog instead
@@ -233,11 +235,11 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
 //                    this.viewModel.ShowNewProject(newProjectViewController);
                 } else {
-//                    viewModel.Finish(project: (ProjectModel)wrap.Data);
+                    ProjectSelected (this, (ProjectModel)wrap.Data);
                 }
             } else if (m is WorkspaceProjectsView.Workspace) {
                 var wrap = (ProjectAndTaskView.Workspace)m;
-//                viewModel.Finish(workspace: (WorkspaceModel)wrap.Data);
+                WorkspaceSelected (this, (WorkspaceModel)wrap.Data);
             }
 
             tableView.DeselectRow (indexPath, true);
