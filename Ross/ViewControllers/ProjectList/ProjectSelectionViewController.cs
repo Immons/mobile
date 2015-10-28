@@ -57,6 +57,13 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             CreateNavBarButtonNewProject();
         }
 
+        public override void ViewDidAppear (bool animated)
+        {
+            base.ViewDidAppear (animated);
+
+            ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
+        }
+
         private void CreateNavBarButtonNewProject()
         {
             NavigationItem.RightBarButtonItem = new UIBarButtonItem (
@@ -67,8 +74,9 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         private void OnNavigationBarAddClicked (object sender, EventArgs e)
         {
             var data = this.Model.Workspace.Data;
+            var color = new Random().Next (0, ProjectModel.HexColors.Length - 1);
 
-            var newProjectViewController = new NewProjectViewController (new WorkspaceModel (data), 0) {
+            var newProjectViewController = new NewProjectViewController (new WorkspaceModel (data), color) {
                 ProjectCreated = (p) => {
                     ViewModel.Finish (project: p);
                     this.NavigateBack();
@@ -82,13 +90,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         {
             Binding.Create (() => this.ViewModel.ProjectList == tableViewSource.ProjectList);
             Binding.Create (() => this.ViewModel.Model == Model);
-        }
-
-        public override void ViewDidAppear (bool animated)
-        {
-            base.ViewDidAppear (animated);
-
-            ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
         }
 
         private void NavigateBack()

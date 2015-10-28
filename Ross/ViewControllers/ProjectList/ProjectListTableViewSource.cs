@@ -109,9 +109,9 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         private UITableViewCell CreateTaskCell (TaskModel taskModel, NSIndexPath indexPath)
         {
             var cell = (TaskCell)tableView.DequeueReusableCell (TaskCellId, indexPath);
-//            var rows = GetCachedRows(GetSection(indexPath.Section));
-//            cell.IsFirst = indexPath.Row < 1 || !(rows[indexPath.Row - 1] is TaskModel);
-//            cell.IsLast = indexPath.Row >= rows.Count || !(rows[indexPath.Row + 1] is TaskModel);
+
+            cell.IsFirst = indexPath.Row < 1 || ! (data[indexPath.Row - 1] is TaskModel);
+            cell.IsLast = indexPath.Row >= data.Count || ! (data[indexPath.Row + 1] is TaskModel);
 
             var taskName = taskModel.Name;
             if (String.IsNullOrWhiteSpace (taskName)) {
@@ -138,6 +138,8 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
             if (project.Data != null && project.Data.Id != Guid.Empty) {
                 var projectId = project.Data.Id;
+
+                //TODO this method uses Update from GroupedDataViewSource - what to do with that?
 //                cell.ToggleTasks = () => ToggleTasksExpanded(projectId);
             } else {
                 cell.ToggleTasks = null;

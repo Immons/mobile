@@ -56,7 +56,7 @@ namespace Toggl.Phoebe.Data.ViewModels
 
                 return projectList;
             } set {
-
+                //Bind library needs set method
             }
         }
 
