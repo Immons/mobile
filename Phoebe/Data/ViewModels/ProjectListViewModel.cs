@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using PropertyChanged;
 using Toggl.Phoebe.Analytics;
 using Toggl.Phoebe.Data.DataObjects;
 using Toggl.Phoebe.Data.Models;
@@ -8,13 +11,6 @@ using Toggl.Phoebe.Data.Utils;
 using Toggl.Phoebe.Data.ViewModels;
 using Toggl.Phoebe.Data.Views;
 using XPlatUtils;
-using PropertyChanged;
-using System.Windows.Input;
-using System.Diagnostics;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using Toggl.Phoebe.Contrib.Bind;
-using System.Reflection;
 
 namespace Toggl.Phoebe.Data.ViewModels
 {
@@ -24,12 +20,16 @@ namespace Toggl.Phoebe.Data.ViewModels
         private IList<TimeEntryData> timeEntryList;
         private WorkspaceProjectsView projectList;
         private IList<string> timeEntryIds;
-        private Action navigateBackAction;
 
         public ProjectListViewModel (IList<TimeEntryData> timeEntryList)
         {
             this.timeEntryList = timeEntryList;
             ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
+
+            ProjectList.CollectionChanged += (sender, e) => {
+                //needed because in current logic, there is no INotifyPropertyChanged for Data object
+                OnPropertyChanged ("ProjectList");
+            };
         }
 
         public ProjectListViewModel (IList<string> timeEntryIds)
@@ -42,8 +42,6 @@ namespace Toggl.Phoebe.Data.ViewModels
                 OnPropertyChanged ("ProjectList");
             };
         }
-
-        public event EventHandler<object> ShowNewProjectEvent;
 
         public bool IsLoading { get; set; }
 
@@ -93,17 +91,6 @@ namespace Toggl.Phoebe.Data.ViewModels
             IsLoading = false;
         }
 
-        public async Task SaveModelAsync (ProjectModel project, WorkspaceModel workspace, TaskData task = null)
-        {
-            Model.Project = project;
-            Model.Workspace = workspace;
-            if (task != null) {
-                Model.Task = new TaskModel (task);
-            }
-
-            await Model.SaveAsync();
-        }
-
         public void Dispose()
         {
             projectList.Dispose();
@@ -123,22 +110,6 @@ namespace Toggl.Phoebe.Data.ViewModels
                 Model.Project = project;
                 Model.Task = task;
                 await Model.SaveAsync();
-            }
-
-            if (this.navigateBackAction != null) {
-                this.navigateBackAction();
-            }
-        }
-
-        public void SetNavigateBack (Action action)
-        {
-            this.navigateBackAction = action;
-        }
-
-        public void ShowNewProject (object view)
-        {
-            if (this.ShowNewProjectEvent != null) {
-                this.ShowNewProjectEvent (this, view);
             }
         }
 
