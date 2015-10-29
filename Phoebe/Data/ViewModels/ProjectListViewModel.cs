@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using PropertyChanged;
 using Toggl.Phoebe.Analytics;
@@ -15,7 +13,7 @@ using XPlatUtils;
 namespace Toggl.Phoebe.Data.ViewModels
 {
     [ImplementPropertyChanged]
-    public class ProjectListViewModel : IVModel<ITimeEntryModel>, INotifyPropertyChanged
+    public class ProjectListViewModel : IVModel<ITimeEntryModel>
     {
         private IList<TimeEntryData> timeEntryList;
         private WorkspaceProjectsView projectList;
@@ -25,22 +23,12 @@ namespace Toggl.Phoebe.Data.ViewModels
         {
             this.timeEntryList = timeEntryList;
             ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
-
-            ProjectList.CollectionChanged += (sender, e) => {
-                //needed because in current logic, there is no INotifyPropertyChanged for Data object
-                OnPropertyChanged ("ProjectList");
-            };
         }
 
         public ProjectListViewModel (IList<string> timeEntryIds)
         {
             this.timeEntryIds = timeEntryIds;
             ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
-
-            ProjectList.CollectionChanged += (sender, e) => {
-                //needed because in current logic, there is no INotifyPropertyChanged for Data object
-                OnPropertyChanged ("ProjectList");
-            };
         }
 
         public bool IsLoading { get; set; }
@@ -112,18 +100,5 @@ namespace Toggl.Phoebe.Data.ViewModels
                 await Model.SaveAsync();
             }
         }
-
-        #region INotifyPropertyChanged implementation
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnPropertyChanged ([CallerMemberName] string name = "")
-        {
-            if (PropertyChanged != null) {
-                PropertyChanged (this, new PropertyChangedEventArgs (name));
-            }
-        }
-
-        #endregion
     }
 }

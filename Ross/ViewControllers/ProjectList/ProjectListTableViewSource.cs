@@ -16,7 +16,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         private readonly static NSString ProjectCellId = new NSString ("ProjectCellId");
         private readonly static NSString TaskCellId = new NSString ("TaskCellId");
 
-        private WorkspaceProjectsView projectList;
         private UITableView tableView;
         private IList<object> data;
 
@@ -31,14 +30,13 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         public event EventHandler<ProjectModel> ProjectSelected;
         public event EventHandler<WorkspaceModel> WorkspaceSelected;
 
-        public WorkspaceProjectsView ProjectList
+        public IEnumerable<object> ProjectList
         {
             get {
-                return projectList;
+                return null;
             } set {
-                if (value?.Data != null) {
-                    projectList = value;
-                    data = projectList.Data.Where (p => p is TaskData || p is WorkspaceProjectsView.Project || p is WorkspaceProjectsView.Workspace).ToList();
+                if (value != null) {
+                    data = value.Where (p => p is TaskData || p is WorkspaceProjectsView.Project || p is WorkspaceProjectsView.Workspace).ToList();
                     this.tableView.ReloadData();
                 }
             }
@@ -64,7 +62,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         public override nfloat GetHeightForRow (UITableView tableView, NSIndexPath indexPath)
         {
-            var row = ProjectList.Data.ToList()[indexPath.Row];
+            var row = data[indexPath.Row];
             if (row is WorkspaceProjectsView.Workspace) {
                 return 42f;
             }
