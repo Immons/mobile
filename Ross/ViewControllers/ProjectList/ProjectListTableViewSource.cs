@@ -7,6 +7,7 @@ using Toggl.Phoebe.Data.Models;
 using Toggl.Phoebe.Data.Views;
 using Toggl.Ross.Theme;
 using UIKit;
+using System.Diagnostics;
 
 namespace Toggl.Ross.ViewControllers.ProjectList
 {
@@ -18,6 +19,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         private UITableView tableView;
         private IList<object> data;
+        private readonly HashSet<Guid> expandedProjects = new HashSet<Guid>();
 
         public ProjectListTableViewSource (UITableView tableView)
         {
@@ -137,8 +139,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             if (project.Data != null && project.Data.Id != Guid.Empty) {
                 var projectId = project.Data.Id;
 
-                //TODO this method uses Update from GroupedDataViewSource - what to do with that?
-//                cell.ToggleTasks = () => ToggleTasksExpanded(projectId);
+                cell.ToggleTasks = () => ToggleTasksExpanded (projectId);
             } else {
                 cell.ToggleTasks = null;
             }
@@ -146,6 +147,55 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             PopulateProjectCell (project, cell);
 
             return cell;
+        }
+
+        private void ToggleTasksExpanded (Guid projectId)
+        {
+            SetTasksExpanded (projectId, !expandedProjects.Contains (projectId));
+        }
+
+        private void SetTasksExpanded (Guid projectId, bool expand)
+        {
+            if (expand && expandedProjects.Add (projectId)) {
+                AddTasks (projectId);
+            } else if (!expand && expandedProjects.Remove (projectId)) {
+                RemoveTasks (projectId);
+            }
+        }
+
+        private void RemoveTasks (Guid projectId)
+        {
+            var project = data.First (p => (p as WorkspaceProjectsView.Project).Data != null && (p as WorkspaceProjectsView.Project).Data.Id == projectId)  as WorkspaceProjectsView.Project;
+            if (project == null) {
+                Debug.Assert (project != null, "Project not found - what has happened?");
+                return;
+            }
+
+            var tasks = project.Tasks;
+
+            foreach (var t in tasks) {
+                data.Remove (t);
+            }
+
+            tableView.ReloadData();
+        }
+
+        private void AddTasks (Guid projectId)
+        {
+            var project = data.First (p => (p as WorkspaceProjectsView.Project).Data != null && (p as WorkspaceProjectsView.Project).Data.Id == projectId) as WorkspaceProjectsView.Project;
+            if (project == null) {
+                Debug.Assert (project != null, "Project not found - what has happened?");
+                return;
+            }
+
+            var index = data.IndexOf (project);
+            var tasks = project.Tasks;
+
+            foreach (var t in tasks) {
+                data.Insert (index + 1, t);
+            }
+
+            tableView.ReloadData();
         }
 
         private void PopulateProjectCell (WorkspaceProjectsView.Project project, ProjectCell cell)
@@ -235,5 +285,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
             tableView.DeselectRow (indexPath, true);
         }
+
     }
 }
