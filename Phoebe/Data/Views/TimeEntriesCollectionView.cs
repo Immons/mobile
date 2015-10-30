@@ -187,7 +187,7 @@ namespace Toggl.Phoebe.Data.Views
                     }
 
                     for (int i = args.NewStartingIndex; i < args.NewStartingIndex + args.NewItems.Count; i++) {
-                        var item = currentItems[i];
+                        var item = currentItems [i];
                         if (item is IDateGroup) {
                             ItemCollection.Insert (i, item);
                         } else {
@@ -202,7 +202,7 @@ namespace Toggl.Phoebe.Data.Views
             }
 
             if (args.Action == NotifyCollectionChangedAction.Move) {
-                var savedItem = ItemCollection[args.OldStartingIndex];
+                var savedItem = ItemCollection [args.OldStartingIndex];
                 ItemCollection.RemoveAt (args.OldStartingIndex);
                 ItemCollection.Insert (args.NewStartingIndex, savedItem);
             }
@@ -213,7 +213,7 @@ namespace Toggl.Phoebe.Data.Views
 
             if (args.Action == NotifyCollectionChangedAction.Replace) {
                 if (data is IDateGroup) {
-                    ItemCollection[args.NewStartingIndex] = data;
+                    ItemCollection [args.NewStartingIndex] = data;
                 } else {
                     var oldHolder = (TimeEntryHolder)ItemCollection.ElementAt (args.NewStartingIndex);
                     var timeEntryList = GetListOfTimeEntries (data);
@@ -223,7 +223,7 @@ namespace Toggl.Phoebe.Data.Views
                     if (args.NewStartingIndex > ItemCollection.Count) {
                         return;
                     }
-                    ItemCollection[args.NewStartingIndex] = oldHolder;
+                    ItemCollection [args.NewStartingIndex] = oldHolder;
                 }
             }
 
@@ -351,7 +351,7 @@ namespace Toggl.Phoebe.Data.Views
                 return null;
             }
 
-            var holder = ItemCollection[index] as TimeEntryHolder;
+            var holder = ItemCollection [index] as TimeEntryHolder;
             return holder;
         }
 

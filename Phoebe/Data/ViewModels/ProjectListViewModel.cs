@@ -22,13 +22,13 @@ namespace Toggl.Phoebe.Data.ViewModels
         public ProjectListViewModel (IList<TimeEntryData> timeEntryList)
         {
             this.timeEntryList = timeEntryList;
-            ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
+            ServiceContainer.Resolve<ITracker> ().CurrentScreen = "Select Project";
         }
 
         public ProjectListViewModel (IList<string> timeEntryIds)
         {
             this.timeEntryIds = timeEntryIds;
-            ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
+            ServiceContainer.Resolve<ITracker> ().CurrentScreen = "Select Project";
         }
 
         public bool IsLoading { get; set; }
@@ -39,7 +39,7 @@ namespace Toggl.Phoebe.Data.ViewModels
         {
             get {
                 if (projectList == null) {
-                    projectList = new WorkspaceProjectsView();
+                    projectList = new WorkspaceProjectsView ();
                 }
 
                 return projectList;
@@ -55,7 +55,7 @@ namespace Toggl.Phoebe.Data.ViewModels
             }
         }
 
-        public async Task Init()
+        public async Task Init ()
         {
             IsLoading = true;
 
@@ -67,10 +67,10 @@ namespace Toggl.Phoebe.Data.ViewModels
             if (timeEntryList.Count > 1) {
                 Model = new TimeEntryGroup (timeEntryList);
             } else if (timeEntryList.Count == 1) {
-                Model = new TimeEntryModel (timeEntryList[0]);
+                Model = new TimeEntryModel (timeEntryList [0]);
             }
 
-            await Model.LoadAsync();
+            await Model.LoadAsync ();
 
             if (Model.Workspace == null || Model.Workspace.Id == Guid.Empty) {
                 Model = null;
@@ -79,9 +79,9 @@ namespace Toggl.Phoebe.Data.ViewModels
             IsLoading = false;
         }
 
-        public void Dispose()
+        public void Dispose ()
         {
-            projectList.Dispose();
+            projectList.Dispose ();
             Model = null;
         }
 
@@ -89,7 +89,7 @@ namespace Toggl.Phoebe.Data.ViewModels
         {
             project = task != null ? task.Project : project;
             if (project != null) {
-                await project.LoadAsync();
+                await project.LoadAsync ();
                 workspace = project.Workspace;
             }
 
@@ -97,7 +97,7 @@ namespace Toggl.Phoebe.Data.ViewModels
                 Model.Workspace = workspace;
                 Model.Project = project;
                 Model.Task = task;
-                await Model.SaveAsync();
+                await Model.SaveAsync ();
             }
         }
     }

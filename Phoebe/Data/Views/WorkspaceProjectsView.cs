@@ -56,7 +56,7 @@ namespace Toggl.Phoebe.Data.Views
         public bool IsEmpty
         {
             get {
-                return workspacesList[currentWorkspaceIndex].HasNoProjects;
+                return workspacesList [currentWorkspaceIndex].HasNoProjects;
             }
         }
 
@@ -543,7 +543,7 @@ namespace Toggl.Phoebe.Data.Views
                 return;
             }
 
-            var ws = workspacesList[currentWorkspaceIndex];
+            var ws = workspacesList [currentWorkspaceIndex];
             switch (sortBy) {
             case SortProjectsBy.Clients:
                 foreach (var client in ws.Clients) {
@@ -682,7 +682,7 @@ namespace Toggl.Phoebe.Data.Views
             public bool HasNoProjects
             {
                 get {
-                    return Projects.Count == 1 && Projects[0].IsNoProject;
+                    return Projects.Count == 1 && Projects [0].IsNoProject;
                 }
             }
 

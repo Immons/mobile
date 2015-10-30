@@ -16,7 +16,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         private readonly static NSString WorkspaceHeaderId = new NSString ("SectionHeaderId");
         private readonly static NSString ProjectCellId = new NSString ("ProjectCellId");
         private readonly static NSString TaskCellId = new NSString ("TaskCellId");
-        private readonly HashSet<Guid> expandedProjects = new HashSet<Guid>();
+        private readonly HashSet<Guid> expandedProjects = new HashSet<Guid> ();
         private readonly Dictionary<TaskData, NSIndexPath> taskPaths;
         private readonly IList<object> data;
 
@@ -24,10 +24,10 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         public ProjectListTableViewSource (UITableView tableView)
         {
-            this.data = new List<object>();
-            this.taskPaths = new Dictionary<TaskData, NSIndexPath>();
+            this.data = new List<object> ();
+            this.taskPaths = new Dictionary<TaskData, NSIndexPath> ();
             this.tableView = tableView;
-            this.Attach();
+            this.Attach ();
         }
 
         public event EventHandler<TaskModel> TaskSelected;
@@ -39,7 +39,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             get { return null; }
             set {
                 if (value != null) {
-                    var paths = new List<NSIndexPath>();
+                    var paths = new List<NSIndexPath> ();
 
                     foreach (var item in value) {
                         paths.Add (NSIndexPath.FromItemSection (data.Count, 0));
@@ -50,9 +50,9 @@ namespace Toggl.Ross.ViewControllers.ProjectList
                         }
                     }
 
-                    tableView.BeginUpdates();
-                    tableView.InsertRows (paths.ToArray(), UITableViewRowAnimation.Middle);
-                    tableView.EndUpdates();
+                    tableView.BeginUpdates ();
+                    tableView.InsertRows (paths.ToArray (), UITableViewRowAnimation.Middle);
+                    tableView.EndUpdates ();
                 }
             }
         }
@@ -61,8 +61,8 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         {
             get {
                 WorkspaceProjectsView.Workspace workspace = null;
-                for (int i = tableView.IndexPathsForVisibleRows[0].Row; i >= 0; i--) {
-                    workspace = data[i] as WorkspaceProjectsView.Workspace;
+                for (int i = tableView.IndexPathsForVisibleRows [0].Row; i >= 0; i--) {
+                    workspace = data [i] as WorkspaceProjectsView.Workspace;
                     if (workspace != null && workspace.Data != null) {
                         return workspace;
                     }
@@ -72,7 +72,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             }
         }
 
-        public void Attach()
+        public void Attach ()
         {
             tableView.RegisterClassForCellReuse (typeof (WorkspaceHeaderCell), WorkspaceHeaderId);
             tableView.RegisterClassForCellReuse (typeof (ProjectCell), ProjectCellId);
@@ -97,7 +97,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         public override nfloat GetHeightForRow (UITableView tableView, NSIndexPath indexPath)
         {
-            var row = data[indexPath.Row];
+            var row = data [indexPath.Row];
             if (row is WorkspaceProjectsView.Workspace) {
                 return 42f;
             }
@@ -119,7 +119,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         public override UITableViewCell GetCell (UITableView tableView, NSIndexPath indexPath)
         {
-            var row = data[indexPath.Row];
+            var row = data [indexPath.Row];
 
             var project = row as WorkspaceProjectsView.Project;
             if (project != null) {
@@ -136,19 +136,19 @@ namespace Toggl.Ross.ViewControllers.ProjectList
                 return CreateWorkspaceCell (workspace, indexPath);
             }
 
-            throw new InvalidOperationException (String.Format ("Unknown row type {0}", row.GetType()));
+            throw new InvalidOperationException (String.Format ("Unknown row type {0}", row.GetType ()));
         }
 
         private UITableViewCell CreateTaskCell (TaskModel taskModel, NSIndexPath indexPath)
         {
             var cell = (TaskCell)tableView.DequeueReusableCell (TaskCellId, indexPath);
 
-            cell.IsFirst = indexPath.Row < 1 || ! (data[indexPath.Row - 1] is TaskModel);
-            cell.IsLast = indexPath.Row >= data.Count || ! (data[indexPath.Row + 1] is TaskModel);
+            cell.IsFirst = indexPath.Row < 1 || ! (data [indexPath.Row - 1] is TaskModel);
+            cell.IsLast = indexPath.Row >= data.Count || ! (data [indexPath.Row + 1] is TaskModel);
 
             var taskName = taskModel.Name;
             if (String.IsNullOrWhiteSpace (taskName)) {
-                taskName = "ProjectNoNameTask".Tr();
+                taskName = "ProjectNoNameTask".Tr ();
             }
 
             cell.NameLabel.Text = taskName;
@@ -198,7 +198,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         private void RemoveTasks (Guid projectId)
         {
-            WorkspaceProjectsView.Project project = data.OfType<WorkspaceProjectsView.Project>().FirstOrDefault (p => p.Data != null && p.Data.Id == projectId);
+            WorkspaceProjectsView.Project project = data.OfType<WorkspaceProjectsView.Project> ().FirstOrDefault (p => p.Data != null && p.Data.Id == projectId);
 
             if (project == null) {
                 Debug.Assert (project != null, "Project not found - what has happened?");
@@ -206,22 +206,22 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             }
 
             var tasks = project.Tasks;
-            var paths = new List<NSIndexPath>();
+            var paths = new List<NSIndexPath> ();
 
             foreach (var t in tasks) {
                 data.Remove (t);
-                paths.Add (this.taskPaths[t]);
+                paths.Add (this.taskPaths [t]);
                 this.taskPaths.Remove (t);
             }
 
-            tableView.BeginUpdates();
-            tableView.DeleteRows (paths.ToArray(), UITableViewRowAnimation.Automatic);
-            tableView.EndUpdates();
+            tableView.BeginUpdates ();
+            tableView.DeleteRows (paths.ToArray (), UITableViewRowAnimation.Automatic);
+            tableView.EndUpdates ();
         }
 
         private void AddTasks (Guid projectId)
         {
-            WorkspaceProjectsView.Project project = data.OfType<WorkspaceProjectsView.Project>().FirstOrDefault (p => p.Data != null && p.Data.Id == projectId);
+            WorkspaceProjectsView.Project project = data.OfType<WorkspaceProjectsView.Project> ().FirstOrDefault (p => p.Data != null && p.Data.Id == projectId);
 
             if (project == null) {
                 Debug.Assert (project != null, "Project not found - what has happened?");
@@ -231,7 +231,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             var index = data.IndexOf (project);
             var tasks = project.Tasks;
 
-            var paths = new List<NSIndexPath>();
+            var paths = new List<NSIndexPath> ();
             var counter = 1;
 
             foreach (var t in tasks) {
@@ -242,9 +242,9 @@ namespace Toggl.Ross.ViewControllers.ProjectList
                 taskPaths.Add (t, path);
             }
 
-            tableView.BeginUpdates();
-            tableView.InsertRows (paths.ToArray(), UITableViewRowAnimation.Automatic);
-            tableView.EndUpdates();
+            tableView.BeginUpdates ();
+            tableView.InsertRows (paths.ToArray (), UITableViewRowAnimation.Automatic);
+            tableView.EndUpdates ();
         }
 
         private void PopulateProjectCell (WorkspaceProjectsView.Project project, ProjectCell cell)
@@ -257,14 +257,14 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
             if (project.IsNoProject) {
                 projectColor = Color.Gray;
-                projectName = "ProjectNoProject".Tr();
+                projectName = "ProjectNoProject".Tr ();
                 cell.ProjectLabel.Apply (Style.ProjectList.NoProjectLabel);
             } else if (project.IsNewProject) {
                 projectColor = Color.LightestGray;
-                projectName = "ProjectNewProject".Tr();
+                projectName = "ProjectNewProject".Tr ();
                 cell.ProjectLabel.Apply (Style.ProjectList.NewProjectLabel);
             } else if (model != null) {
-                projectColor = UIColor.Clear.FromHex (model.GetHexColor());
+                projectColor = UIColor.Clear.FromHex (model.GetHexColor ());
 
                 projectName = project.Data.Name;
                 clientName = model.Client != null ? model.Client.Name : String.Empty;
@@ -275,7 +275,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             }
 
             if (String.IsNullOrWhiteSpace (projectName)) {
-                projectName = "ProjectNoNameProject".Tr();
+                projectName = "ProjectNoNameProject".Tr ();
                 clientName = String.Empty;
             }
 
@@ -296,7 +296,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
             cell.TasksButton.Hidden = taskCount < 1;
             if (!cell.TasksButton.Hidden) {
-                cell.TasksButton.SetTitle (taskCount.ToString(), UIControlState.Normal);
+                cell.TasksButton.SetTitle (taskCount.ToString (), UIControlState.Normal);
                 cell.TasksButton.SetTitleColor (projectColor, UIControlState.Normal);
             }
 
@@ -305,7 +305,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         public override UIView GetViewForHeader (UITableView tableView, nint section)
         {
-            return new UIView().Apply (Style.ProjectList.HeaderBackgroundView);
+            return new UIView ().Apply (Style.ProjectList.HeaderBackgroundView);
         }
 
         public override bool CanEditRow (UITableView tableView, NSIndexPath indexPath)
@@ -315,7 +315,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         public override void RowSelected (UITableView tableView, NSIndexPath indexPath)
         {
-            var m = data[indexPath.Row];
+            var m = data [indexPath.Row];
 
             if (m is TaskData) {
                 var data = (TaskData)m;

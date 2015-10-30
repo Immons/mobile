@@ -19,18 +19,18 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         {
             this.Model = model;
 
-            Title = "ProjectTitle".Tr();
+            Title = "ProjectTitle".Tr ();
         }
 
         public ProjectListViewModel ViewModel { get; set; }
 
         public TimeEntryModel Model { get; set; }
 
-        public override void ViewDidLoad()
+        public override void ViewDidLoad ()
         {
-            base.ViewDidLoad();
+            base.ViewDidLoad ();
 
-            var array = new [] { Model.Id.ToString() };
+            var array = new [] { Model.Id.ToString () };
             var timeEntryIds = new List<string> (array);
             this.ViewModel = new ProjectListViewModel (timeEntryIds);
 
@@ -40,34 +40,34 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             tableViewSource = new ProjectListTableViewSource (this.TableView);
             this.tableViewSource.TaskSelected += (sender, e) => {
                 ViewModel.Finish (e);
-                this.NavigateBack();
+                this.NavigateBack ();
             };
             this.tableViewSource.ProjectSelected += (sender, e) => {
                 ViewModel.Finish (project: e);
-                this.NavigateBack();
+                this.NavigateBack ();
             };
             this.tableViewSource.WorkspaceSelected += (sender, e) => {
                 ViewModel.Finish (workspace: e);
-                this.NavigateBack();
+                this.NavigateBack ();
             };
 
             this.TableView.Source = tableViewSource;
 
-            CreateBindingSet();
-            CreateNavBarButtonNewProject();
+            CreateBindingSet ();
+            CreateNavBarButtonNewProject ();
         }
 
         public override void ViewDidAppear (bool animated)
         {
             base.ViewDidAppear (animated);
 
-            ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
+            ServiceContainer.Resolve<ITracker> ().CurrentScreen = "Select Project";
         }
 
-        private void CreateNavBarButtonNewProject()
+        private void CreateNavBarButtonNewProject ()
         {
             NavigationItem.RightBarButtonItem = new UIBarButtonItem (
-                "ClientNewClient".Tr(), UIBarButtonItemStyle.Plain, OnNavigationBarAddClicked)
+                "ClientNewClient".Tr (), UIBarButtonItemStyle.Plain, OnNavigationBarAddClicked)
             .Apply (Style.NavLabelButton);
         }
 
@@ -78,25 +78,25 @@ namespace Toggl.Ross.ViewControllers.ProjectList
                 return;
             }
 
-            var color = new Random().Next (0, ProjectModel.HexColors.Length - 1);
+            var color = new Random ().Next (0, ProjectModel.HexColors.Length - 1);
 
             var newProjectViewController = new NewProjectViewController (new WorkspaceModel (data), color) {
                 ProjectCreated = (p) => {
                     ViewModel.Finish (project: p);
-                    this.NavigateBack();
+                    this.NavigateBack ();
                 },
             };
 
             this.NavigationController.PushViewController (newProjectViewController, true);
         }
 
-        private void CreateBindingSet()
+        private void CreateBindingSet ()
         {
             Binding.Create (() => this.ViewModel.ProjectList.Workspaces == tableViewSource.Workspaces);
             Binding.Create (() => this.ViewModel.Model == Model);
         }
 
-        private void NavigateBack()
+        private void NavigateBack ()
         {
             this.NavigationController.PopViewController (true);
         }
