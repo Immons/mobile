@@ -13,9 +13,9 @@ namespace Toggl.Phoebe.Data.Views
 
         bool HasMore { get; }
 
-        void Reload();
+        void Reload ();
 
-        void LoadMore();
+        void LoadMore ();
 
         bool IsLoading { get; }
 

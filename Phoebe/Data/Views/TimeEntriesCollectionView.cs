@@ -29,9 +29,9 @@ namespace Toggl.Phoebe.Data.Views
 
         protected string Tag = "TimeEntriesCollectionView";
         protected TimeEntryHolder LastRemovedItem;
-        protected readonly List<object> ItemCollection = new List<object>();
+        protected readonly List<object> ItemCollection = new List<object> ();
 
-        private readonly List<IDateGroup> dateGroups = new List<IDateGroup>();
+        private readonly List<IDateGroup> dateGroups = new List<IDateGroup> ();
         private UpdateMode updateMode = UpdateMode.Batch;
         private DateTime startFrom;
         private Subscription<DataChangeMessage> subscriptionDataChange;
@@ -46,42 +46,42 @@ namespace Toggl.Phoebe.Data.Views
 
         // BufferBlock is an element introduced to
         // deal with the fast producer, slow consumer effect.
-        private BufferBlock<DataChangeMessage> bufferBlock = new BufferBlock<DataChangeMessage>();
+        private BufferBlock<DataChangeMessage> bufferBlock = new BufferBlock<DataChangeMessage> ();
         private CancellationTokenSource cts;
         private CancellationToken cancellationToken;
 
-        public TimeEntriesCollectionView()
+        public TimeEntriesCollectionView ()
         {
-            var bus = ServiceContainer.Resolve<MessageBus>();
+            var bus = ServiceContainer.Resolve<MessageBus> ();
             subscriptionDataChange = bus.Subscribe<DataChangeMessage> (OnDataChange);
             HasMore = true;
 
-            Reload();
+            Reload ();
 
-            cts = new CancellationTokenSource();
+            cts = new CancellationTokenSource ();
             cancellationToken = cts.Token;
         }
 
-        public void Dispose()
+        public void Dispose ()
         {
             // cancel web request.
             if (isLoading) {
-                cts.Cancel();
+                cts.Cancel ();
             }
-            cts.Dispose();
+            cts.Dispose ();
 
             // Clean lists
-            bufferBlock.Complete();
+            bufferBlock.Complete ();
 
             // Release Undo timer
             // A recently deleted item will not be
             // removed
             if (undoTimer != null) {
                 undoTimer.Elapsed -= OnUndoTimeFinished;
-                undoTimer.Close();
+                undoTimer.Close ();
             }
 
-            var bus = ServiceContainer.Resolve<MessageBus>();
+            var bus = ServiceContainer.Resolve<MessageBus> ();
             if (subscriptionDataChange != null) {
                 bus.Unsubscribe (subscriptionDataChange);
                 subscriptionDataChange = null;
@@ -123,7 +123,7 @@ namespace Toggl.Phoebe.Data.Views
 
             // Get messages from async buffer
             while (bufferBlock.Count > 0) {
-                var receivedMsg = await bufferBlock.ReceiveAsync();
+                var receivedMsg = await bufferBlock.ReceiveAsync ();
                 await ProcessUpdateMessage (receivedMsg);
             }
 
@@ -146,12 +146,12 @@ namespace Toggl.Phoebe.Data.Views
 
         protected virtual Task AddOrUpdateEntryAsync (TimeEntryData entry)
         {
-            throw new NotImplementedException ("You can't call this method in base class " + GetType().Name);
+            throw new NotImplementedException ("You can't call this method in base class " + GetType ().Name);
         }
 
         protected virtual Task RemoveEntryAsync (TimeEntryData entry)
         {
-            throw new NotImplementedException ("You can't call this method in base class " + GetType().Name);
+            throw new NotImplementedException ("You can't call this method in base class " + GetType ().Name);
         }
 
         protected virtual async Task UpdateCollectionAsync (object data, NotifyCollectionChangedAction action, int newIndex, int oldIndex = -1, bool isRange = false)
@@ -175,15 +175,15 @@ namespace Toggl.Phoebe.Data.Views
                     } else {
                         var timeEntryList = GetListOfTimeEntries (data);
                         var newHolder = new TimeEntryHolder (timeEntryList);
-                        await newHolder.LoadAsync();
+                        await newHolder.LoadAsync ();
                         ItemCollection.Insert (args.NewStartingIndex, newHolder);
                     }
                 } else {
-                    var holderTaskList = new List<Task>();
+                    var holderTaskList = new List<Task> ();
                     var currentItems = new List<object> (UpdatedList);
 
                     if (args.NewStartingIndex == 0) {
-                        ItemCollection.Clear();
+                        ItemCollection.Clear ();
                     }
 
                     for (int i = args.NewStartingIndex; i < args.NewStartingIndex + args.NewItems.Count; i++) {
@@ -194,7 +194,7 @@ namespace Toggl.Phoebe.Data.Views
                             var timeEntryList = GetListOfTimeEntries (item);
                             var timeEntryHolder = new TimeEntryHolder (timeEntryList);
                             ItemCollection.Insert (i, timeEntryHolder);
-                            holderTaskList.Add (timeEntryHolder.LoadAsync());
+                            holderTaskList.Add (timeEntryHolder.LoadAsync ());
                         }
                     }
                     await Task.WhenAll (holderTaskList);
@@ -236,7 +236,7 @@ namespace Toggl.Phoebe.Data.Views
 
         private List<TimeEntryData> GetListOfTimeEntries (object data)
         {
-            var timeEntryList = new List<TimeEntryData>();
+            var timeEntryList = new List<TimeEntryData> ();
 
             if (data is TimeEntryData) {
                 timeEntryList.Add ((TimeEntryData)data);
@@ -263,10 +263,10 @@ namespace Toggl.Phoebe.Data.Views
 
             if (timeEntry.State == TimeEntryState.Running) {
                 await TimeEntryModel.StopAsync (timeEntryHolder.TimeEntryData);
-                ServiceContainer.Resolve<ITracker>().SendTimerStopEvent (TimerStopSource.App);
+                ServiceContainer.Resolve<ITracker> ().SendTimerStopEvent (TimerStopSource.App);
             } else {
                 await TimeEntryModel.ContinueTimeEntryDataAsync (timeEntryHolder.TimeEntryData);
-                ServiceContainer.Resolve<ITracker>().SendTimerStartEvent (TimerStartSource.AppContinue);
+                ServiceContainer.Resolve<ITracker> ().SendTimerStartEvent (TimerStartSource.AppContinue);
             }
         }
 
@@ -298,16 +298,16 @@ namespace Toggl.Phoebe.Data.Views
             // Create Undo timer
             if (undoTimer != null) {
                 undoTimer.Elapsed -= OnUndoTimeFinished;
-                undoTimer.Close();
+                undoTimer.Close ();
             }
             // Using the correct timer.
             undoTimer = new System.Timers.Timer ((UndoSecondsInterval + 1) * 1000);
             undoTimer.AutoReset = false;
             undoTimer.Elapsed += OnUndoTimeFinished;
-            undoTimer.Start();
+            undoTimer.Start ();
         }
 
-        public async Task RestoreItemFromUndoAsync()
+        public async Task RestoreItemFromUndoAsync ()
         {
             if (LastRemovedItem != null) {
                 await AddTimeEntryHolderAsync (LastRemovedItem);
@@ -317,12 +317,12 @@ namespace Toggl.Phoebe.Data.Views
 
         protected virtual Task AddTimeEntryHolderAsync (TimeEntryHolder holder)
         {
-            throw new NotImplementedException ("You can't call this method in base class " + GetType().Name);
+            throw new NotImplementedException ("You can't call this method in base class " + GetType ().Name);
         }
 
         protected virtual Task RemoveTimeEntryHolderAsync (TimeEntryHolder holder)
         {
-            throw new NotImplementedException ("You can't call this method in base class " + GetType().Name);
+            throw new NotImplementedException ("You can't call this method in base class " + GetType ().Name);
         }
 
         private async Task RemoveItemPermanentlyAsync (TimeEntryHolder holder)
@@ -333,9 +333,9 @@ namespace Toggl.Phoebe.Data.Views
 
             if (holder.TimeEntryDataList.Count > 1) {
                 var timeEntryGroup = new TimeEntryGroup (holder.TimeEntryDataList);
-                await timeEntryGroup.DeleteAsync();
+                await timeEntryGroup.DeleteAsync ();
             } else {
-                await TimeEntryModel.DeleteTimeEntryDataAsync (holder.TimeEntryDataList.First());
+                await TimeEntryModel.DeleteTimeEntryDataAsync (holder.TimeEntryDataList.First ());
             }
         }
 
@@ -368,13 +368,13 @@ namespace Toggl.Phoebe.Data.Views
             }
 
             if (subscriptionSyncFinished != null) {
-                var bus = ServiceContainer.Resolve<MessageBus>();
+                var bus = ServiceContainer.Resolve<MessageBus> ();
                 bus.Unsubscribe (subscriptionSyncFinished);
                 subscriptionSyncFinished = null;
             }
         }
 
-        private void BeginUpdate()
+        private void BeginUpdate ()
         {
             if (updateMode != UpdateMode.Immediate) {
                 return;
@@ -383,7 +383,7 @@ namespace Toggl.Phoebe.Data.Views
             updateMode = UpdateMode.Batch;
         }
 
-        private async void EndUpdate()
+        private async void EndUpdate ()
         {
             updateMode = UpdateMode.Immediate;
             if (UpdatedCount > lastNumberOfItems) {
@@ -391,24 +391,24 @@ namespace Toggl.Phoebe.Data.Views
             }
         }
 
-        public void Reload()
+        public void Reload ()
         {
             if (IsLoading) {
                 return;
             }
 
             startFrom = Time.UtcNow;
-            DateGroups.Clear();
+            DateGroups.Clear ();
             HasMore = true;
 
-            var syncManager = ServiceContainer.Resolve<ISyncManager>();
+            var syncManager = ServiceContainer.Resolve<ISyncManager> ();
             if (syncManager.IsRunning) {
                 // Fake loading until initial sync has finished
                 IsLoading = true;
 
                 reloadScheduled = true;
                 if (subscriptionSyncFinished == null) {
-                    var bus = ServiceContainer.Resolve<MessageBus>();
+                    var bus = ServiceContainer.Resolve<MessageBus> ();
                     subscriptionSyncFinished = bus.Subscribe<SyncFinishedMessage> (OnSyncFinished);
                 }
             } else {
@@ -416,7 +416,7 @@ namespace Toggl.Phoebe.Data.Views
             }
         }
 
-        public void LoadMore()
+        public void LoadMore ()
         {
             Load (false);
         }
@@ -428,10 +428,10 @@ namespace Toggl.Phoebe.Data.Views
             }
 
             IsLoading = true;
-            var client = ServiceContainer.Resolve<ITogglClient>();
+            var client = ServiceContainer.Resolve<ITogglClient> ();
 
             try {
-                var dataStore = ServiceContainer.Resolve<IDataStore>();
+                var dataStore = ServiceContainer.Resolve<IDataStore> ();
                 var endTime = startFrom;
                 var startTime = startFrom = endTime - TimeSpan.FromDays (4);
 
@@ -449,9 +449,9 @@ namespace Toggl.Phoebe.Data.Views
                         var minStart = endTime;
                         var jsonEntries = await client.ListTimeEntries (endTime, numDays, cancellationToken);
 
-                        BeginUpdate();
+                        BeginUpdate ();
                         var entries = await dataStore.ExecuteInTransactionAsync (ctx =>
-                                      jsonEntries.Select (json => json.Import (ctx)).ToList());
+                                      jsonEntries.Select (json => json.Import (ctx)).ToList ());
 
                         // Add entries to list:
                         foreach (var entry in entries) {
@@ -465,8 +465,8 @@ namespace Toggl.Phoebe.Data.Views
                         startTime = minStart;
                         HasMore = (endTime.Date - minStart.Date).Days > 0;
                     } catch (Exception exc) {
-                        var log = ServiceContainer.Resolve<ILogger>();
-                        if (exc.IsNetworkFailure() || exc is TaskCanceledException) {
+                        var log = ServiceContainer.Resolve<ILogger> ();
+                        if (exc.IsNetworkFailure () || exc is TaskCanceledException) {
                             log.Info (Tag, exc, "Failed to fetch time entries {1} days up to {0}", endTime, numDays);
                         } else {
                             log.Warning (Tag, exc, "Failed to fetch time entries {1} days up to {0}", endTime, numDays);
@@ -478,10 +478,10 @@ namespace Toggl.Phoebe.Data.Views
 
                 // Fall back to local data:
                 if (useLocal) {
-                    var store = ServiceContainer.Resolve<IDataStore>();
-                    var userId = ServiceContainer.Resolve<AuthManager>().GetUserId();
+                    var store = ServiceContainer.Resolve<IDataStore> ();
+                    var userId = ServiceContainer.Resolve<AuthManager> ().GetUserId ();
 
-                    var baseQuery = store.Table<TimeEntryData>()
+                    var baseQuery = store.Table<TimeEntryData> ()
                                     .OrderBy (r => r.StartTime, false)
                                     .Where (r => r.State != TimeEntryState.New
                                             && r.DeletedAt == null
@@ -490,7 +490,7 @@ namespace Toggl.Phoebe.Data.Views
                                   .QueryAsync (r => r.StartTime <= endTime
                                                && r.StartTime > startTime);
 
-                    BeginUpdate();
+                    BeginUpdate ();
                     foreach (var entry in entries) {
                         await AddOrUpdateEntryAsync (entry);
                     }
@@ -502,11 +502,11 @@ namespace Toggl.Phoebe.Data.Views
                     }
                 }
             } catch (Exception exc) {
-                var log = ServiceContainer.Resolve<ILogger>();
+                var log = ServiceContainer.Resolve<ILogger> ();
                 log.Error (Tag, exc, "Failed to fetch time entries");
             } finally {
                 IsLoading = false;
-                EndUpdate();
+                EndUpdate ();
             }
         }
 
@@ -579,7 +579,7 @@ namespace Toggl.Phoebe.Data.Views
         protected int UpdatedCount
         {
             get {
-                var itemsCount = DateGroups.Sum (g => g.DataObjects.Count());
+                var itemsCount = DateGroups.Sum (g => g.DataObjects.Count ());
                 return DateGroups.Count + itemsCount;
             }
         }

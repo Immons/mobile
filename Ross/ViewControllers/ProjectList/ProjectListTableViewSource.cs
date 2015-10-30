@@ -17,10 +17,10 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         private readonly static NSString ProjectCellId = new NSString ("ProjectCellId");
         private readonly static NSString TaskCellId = new NSString ("TaskCellId");
         private readonly HashSet<Guid> expandedProjects = new HashSet<Guid>();
+        private readonly Dictionary<TaskData, NSIndexPath> taskPaths;
+        private readonly IList<object> data;
 
-        private Dictionary<TaskData, NSIndexPath> taskPaths;
         private UITableView tableView;
-        private IList<object> data;
 
         public ProjectListTableViewSource (UITableView tableView)
         {
