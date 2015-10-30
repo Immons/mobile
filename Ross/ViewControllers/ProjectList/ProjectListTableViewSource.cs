@@ -21,10 +21,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         private UITableView tableView;
         private IList<object> data;
         private List<WorkspaceProjectsView.Workspace> workspaces;
-        private List<WorkspaceProjectsView.Project> projects;
-        private int workspacesCount;
-        private int projectsCount;
-        private int clientsCount;
+
 
         public ProjectListTableViewSource (UITableView tableView)
         {
@@ -43,9 +40,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             set {
                 if (value != null) {
                     workspaces = value;
-                    workspacesCount = workspaces.Count;
-                    projectsCount = workspaces.Sum (w => w.Projects.Count);
-                    this.tableView.ReloadData();
 
                     foreach (var item in value) {
                         data.Add (item);
@@ -53,6 +47,8 @@ namespace Toggl.Ross.ViewControllers.ProjectList
                             data.Add (project);
                         }
                     }
+
+                    this.tableView.ReloadData();
                 }
             }
         }
@@ -67,12 +63,12 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         public override nint RowsInSection (UITableView tableview, nint section)
         {
-            return workspaces[ (int)section].Projects.Count;
+            return data.Count;
         }
 
         public override nint NumberOfSections (UITableView tableView)
         {
-            return workspacesCount;
+            return 1;
         }
 
         public override nfloat EstimatedHeight (UITableView tableView, NSIndexPath indexPath)
@@ -305,6 +301,5 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
             tableView.DeselectRow (indexPath, true);
         }
-
     }
 }
