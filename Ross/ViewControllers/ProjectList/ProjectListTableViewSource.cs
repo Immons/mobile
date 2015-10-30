@@ -26,6 +26,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         public ProjectListTableViewSource (UITableView tableView)
         {
             this.data = new List<object>();
+            this.taskPaths = new Dictionary<TaskData, NSIndexPath>();
             this.tableView = tableView;
             this.Attach();
         }
@@ -205,6 +206,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             foreach (var t in tasks) {
                 data.Remove (t);
                 paths.Add (this.taskPaths[t]);
+                this.taskPaths.Remove (t);
             }
 
             tableView.BeginUpdates();
@@ -224,7 +226,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             var index = data.IndexOf (project);
             var tasks = project.Tasks;
 
-            this.taskPaths = new Dictionary<TaskData, NSIndexPath>();
             var paths = new List<NSIndexPath>();
             var counter = 1;
 
