@@ -53,6 +53,21 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             }
         }
 
+        public WorkspaceProjectsView.Workspace WorkspaceForVisibleCell
+        {
+            get {
+                WorkspaceProjectsView.Workspace workspace = null;
+                for (int i = tableView.IndexPathsForVisibleRows[0].Row; i >= 0; i--) {
+                    workspace = data[i] as WorkspaceProjectsView.Workspace;
+                    if (workspace != null && workspace.Data != null) {
+                        return workspace;
+                    }
+                }
+
+                return workspace;
+            }
+        }
+
         public void Attach()
         {
             tableView.RegisterClassForCellReuse (typeof (WorkspaceHeaderCell), WorkspaceHeaderId);

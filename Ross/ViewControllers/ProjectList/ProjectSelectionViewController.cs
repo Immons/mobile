@@ -73,7 +73,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         private void OnNavigationBarAddClicked (object sender, EventArgs e)
         {
-            var data = this.Model.Workspace.Data;
+            var data = this.tableViewSource.WorkspaceForVisibleCell.Data;
             var color = new Random().Next (0, ProjectModel.HexColors.Length - 1);
 
             var newProjectViewController = new NewProjectViewController (new WorkspaceModel (data), color) {
