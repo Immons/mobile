@@ -22,7 +22,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         private UITableView tableView;
         private IList<object> data;
 
-
         public ProjectListTableViewSource (UITableView tableView)
         {
             this.data = new List<object>();
@@ -40,14 +39,20 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             get { return null; }
             set {
                 if (value != null) {
+                    var paths = new List<NSIndexPath>();
+
                     foreach (var item in value) {
+                        paths.Add (NSIndexPath.FromItemSection (data.Count, 0));
                         data.Add (item);
                         foreach (var project in item.Projects) {
+                            paths.Add (NSIndexPath.FromItemSection (data.Count, 0));
                             data.Add (project);
                         }
                     }
 
-                    this.tableView.ReloadData();
+                    tableView.BeginUpdates();
+                    tableView.InsertRows (paths.ToArray(), UITableViewRowAnimation.Middle);
+                    tableView.EndUpdates();
                 }
             }
         }
