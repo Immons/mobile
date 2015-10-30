@@ -143,6 +143,9 @@ namespace Toggl.Phoebe.Data.Views
                     OnUpdated();
                 }
             }
+
+            OnPropertyChanged ("Data");
+            OnPropertyChanged ("Workspaces");
         }
 
         private void OnDataChange (ProjectData data, DataAction action)
@@ -399,6 +402,9 @@ namespace Toggl.Phoebe.Data.Views
                     subscriptionDataChange = bus.Subscribe<DataChangeMessage> (OnDataChange);
                 }
             }
+
+            OnPropertyChanged ("Data");
+            OnPropertyChanged ("Workspaces");
         }
 
         private void FillClientsBranchForWorkspace (Workspace workspace, List<ClientData> clients, IEnumerable<ProjectData> projects, Task<List<TaskData>> tasksTask)
@@ -597,7 +603,7 @@ namespace Toggl.Phoebe.Data.Views
         {
             get {
                 return workspacesList;
-            }
+            } set { }
         }
 
         public int CurrentWorkspaceIndex

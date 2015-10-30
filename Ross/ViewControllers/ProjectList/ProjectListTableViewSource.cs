@@ -16,10 +16,15 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         private readonly static NSString WorkspaceHeaderId = new NSString ("SectionHeaderId");
         private readonly static NSString ProjectCellId = new NSString ("ProjectCellId");
         private readonly static NSString TaskCellId = new NSString ("TaskCellId");
+        private readonly HashSet<Guid> expandedProjects = new HashSet<Guid>();
 
         private UITableView tableView;
         private IList<object> data;
-        private readonly HashSet<Guid> expandedProjects = new HashSet<Guid>();
+        private List<WorkspaceProjectsView.Workspace> workspaces;
+        private List<WorkspaceProjectsView.Project> projects;
+        private int workspacesCount;
+        private int projectsCount;
+        private int clientsCount;
 
         public ProjectListTableViewSource (UITableView tableView)
         {
@@ -32,14 +37,22 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         public event EventHandler<ProjectModel> ProjectSelected;
         public event EventHandler<WorkspaceModel> WorkspaceSelected;
 
-        public IEnumerable<object> ProjectList
+        public List<WorkspaceProjectsView.Workspace> Workspaces
         {
-            get {
-                return null;
-            } set {
+            get { return null; }
+            set {
                 if (value != null) {
-                    data = value.Where (p => p is TaskData || p is WorkspaceProjectsView.Project || p is WorkspaceProjectsView.Workspace).ToList();
+                    workspaces = value;
+                    workspacesCount = workspaces.Count;
+                    projectsCount = workspaces.Sum (w => w.Projects.Count);
                     this.tableView.ReloadData();
+
+                    foreach (var item in value) {
+                        data.Add (item);
+                        foreach (var project in item.Projects) {
+                            data.Add (project);
+                        }
+                    }
                 }
             }
         }
@@ -54,7 +67,12 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         public override nint RowsInSection (UITableView tableview, nint section)
         {
-            return data.Count;
+            return workspaces[ (int)section].Projects.Count;
+        }
+
+        public override nint NumberOfSections (UITableView tableView)
+        {
+            return workspacesCount;
         }
 
         public override nfloat EstimatedHeight (UITableView tableView, NSIndexPath indexPath)
@@ -165,7 +183,8 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         private void RemoveTasks (Guid projectId)
         {
-            var project = data.First (p => (p as WorkspaceProjectsView.Project).Data != null && (p as WorkspaceProjectsView.Project).Data.Id == projectId)  as WorkspaceProjectsView.Project;
+            WorkspaceProjectsView.Project project = data.OfType<WorkspaceProjectsView.Project>().FirstOrDefault (p => p.Data != null && p.Data.Id == projectId);
+
             if (project == null) {
                 Debug.Assert (project != null, "Project not found - what has happened?");
                 return;
@@ -182,7 +201,8 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         private void AddTasks (Guid projectId)
         {
-            var project = data.First (p => (p as WorkspaceProjectsView.Project).Data != null && (p as WorkspaceProjectsView.Project).Data.Id == projectId) as WorkspaceProjectsView.Project;
+            WorkspaceProjectsView.Project project = data.OfType<WorkspaceProjectsView.Project>().FirstOrDefault (p => p.Data != null && p.Data.Id == projectId);
+
             if (project == null) {
                 Debug.Assert (project != null, "Project not found - what has happened?");
                 return;

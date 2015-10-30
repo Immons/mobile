@@ -88,7 +88,7 @@ namespace Toggl.Ross.ViewControllers.ProjectList
 
         private void CreateBindingSet()
         {
-            Binding.Create (() => this.ViewModel.ProjectList.Data == tableViewSource.ProjectList);
+            Binding.Create (() => this.ViewModel.ProjectList.Workspaces == tableViewSource.Workspaces);
             Binding.Create (() => this.ViewModel.Model == Model);
         }
 
