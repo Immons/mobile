@@ -18,9 +18,9 @@ namespace Toggl.Ross.ViewControllers.ProjectList
         private readonly static NSString TaskCellId = new NSString ("TaskCellId");
         private readonly HashSet<Guid> expandedProjects = new HashSet<Guid>();
 
+        private Dictionary<TaskData, NSIndexPath> taskPaths;
         private UITableView tableView;
         private IList<object> data;
-        private List<WorkspaceProjectsView.Workspace> workspaces;
 
 
         public ProjectListTableViewSource (UITableView tableView)
@@ -39,8 +39,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             get { return null; }
             set {
                 if (value != null) {
-                    workspaces = value;
-
                     foreach (var item in value) {
                         data.Add (item);
                         foreach (var project in item.Projects) {
@@ -202,12 +200,16 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             }
 
             var tasks = project.Tasks;
+            var paths = new List<NSIndexPath>();
 
             foreach (var t in tasks) {
                 data.Remove (t);
+                paths.Add (this.taskPaths[t]);
             }
 
-            tableView.ReloadData();
+            tableView.BeginUpdates();
+            tableView.DeleteRows (paths.ToArray(), UITableViewRowAnimation.Automatic);
+            tableView.EndUpdates();
         }
 
         private void AddTasks (Guid projectId)
@@ -222,11 +224,21 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             var index = data.IndexOf (project);
             var tasks = project.Tasks;
 
+            this.taskPaths = new Dictionary<TaskData, NSIndexPath>();
+            var paths = new List<NSIndexPath>();
+            var counter = 1;
+
             foreach (var t in tasks) {
-                data.Insert (index + 1, t);
+                data.Insert (index + counter, t);
+                var path = NSIndexPath.FromItemSection (index + counter, 0);
+                paths.Add (path);
+                counter++;
+                taskPaths.Add (t, path);
             }
 
-            tableView.ReloadData();
+            tableView.BeginUpdates();
+            tableView.InsertRows (paths.ToArray(), UITableViewRowAnimation.Automatic);
+            tableView.EndUpdates();
         }
 
         private void PopulateProjectCell (WorkspaceProjectsView.Project project, ProjectCell cell)
