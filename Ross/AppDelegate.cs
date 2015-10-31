@@ -18,6 +18,8 @@ using Toggl.Ross.Views;
 using UIKit;
 using Xamarin;
 using XPlatUtils;
+using Toggl.Phoebe.Contrib.Bind;
+using System.Diagnostics;
 
 namespace Toggl.Ross
 {
@@ -34,27 +36,29 @@ namespace Toggl.Ross
         public override bool FinishedLaunching (UIApplication application, NSDictionary launchOptions)
         {
             var versionString = UIDevice.CurrentDevice.SystemVersion;
-            systemVersion = Convert.ToInt32 ( versionString.Split ( new [] {"."}, StringSplitOptions.None)[0]);
+            systemVersion = Convert.ToInt32 (versionString.Split (new [] { "." }, StringSplitOptions.None)[0]);
 
             // Component initialisation.
-            RegisterComponents ();
+            RegisterComponents();
 
             // Setup Google sign in
-            SetupGoogleServices ();
+            SetupGoogleServices();
 
-            Toggl.Ross.Theme.Style.Initialize ();
+            Toggl.Ross.Theme.Style.Initialize();
 
             // Start app
             window = new TogglWindow (UIScreen.MainScreen.Bounds);
-            window.RootViewController = new MainViewController ();
-            window.MakeKeyAndVisible ();
+            window.RootViewController = new MainViewController();
+            window.MakeKeyAndVisible();
 
             // Make sure critical services are running are running:
-            ServiceContainer.Resolve<UpgradeManger> ().TryUpgrade ();
-            ServiceContainer.Resolve<ILoggerClient> ();
-            ServiceContainer.Resolve<LoggerUserManager> ();
-            ServiceContainer.Resolve<ITracker> ();
-            ServiceContainer.Resolve<APNSManager> ();
+            ServiceContainer.Resolve<UpgradeManger>().TryUpgrade();
+            ServiceContainer.Resolve<ILoggerClient>();
+            ServiceContainer.Resolve<LoggerUserManager>();
+            ServiceContainer.Resolve<ITracker>();
+            ServiceContainer.Resolve<APNSManager>();
+
+            Binding.Error += Debug.WriteLine;
 
             return true;
         }
@@ -62,20 +66,20 @@ namespace Toggl.Ross
         public override void RegisteredForRemoteNotifications (UIApplication application, NSData deviceToken)
         {
             Task.Run (async () => {
-                var service = ServiceContainer.Resolve<APNSManager> ();
+                var service = ServiceContainer.Resolve<APNSManager>();
                 await service.RegisteredForRemoteNotificationsAsync (application, deviceToken);
             });
         }
 
         public override void FailedToRegisterForRemoteNotifications (UIApplication application, NSError error)
         {
-            ServiceContainer.Resolve<APNSManager> ().FailedToRegisterForRemoteNotifications (application, error);
+            ServiceContainer.Resolve<APNSManager>().FailedToRegisterForRemoteNotifications (application, error);
         }
 
         public override void DidReceiveRemoteNotification (UIApplication application, NSDictionary userInfo, Action<UIBackgroundFetchResult> completionHandler)
         {
             Task.Run (async () => {
-                var service = ServiceContainer.Resolve<APNSManager> ();
+                var service = ServiceContainer.Resolve<APNSManager>();
                 await service.DidReceiveRemoteNotificationAsync (application, userInfo, completionHandler);
             });
         }
@@ -83,8 +87,8 @@ namespace Toggl.Ross
         public override void OnActivated (UIApplication application)
         {
             // Make sure the user data is refreshed when the application becomes active
-            ServiceContainer.Resolve<ISyncManager> ().Run ();
-            ServiceContainer.Resolve<NetworkIndicatorManager> ();
+            ServiceContainer.Resolve<ISyncManager>().Run();
+            ServiceContainer.Resolve<NetworkIndicatorManager>();
 
             if (systemVersion > minVersionWidget) {
                 ServiceContainer.Resolve<WidgetSyncManager>();
@@ -125,24 +129,24 @@ namespace Toggl.Ross
             }
         }
 
-        private void RegisterComponents ()
+        private void RegisterComponents()
         {
             // Register platform info first.
             ServiceContainer.Register<IPlatformInfo> (this);
 
             // Register Phoebe services
-            Services.Register ();
+            Services.Register();
 
             // Override default implementation
-            ServiceContainer.Register<ITimeProvider> (() => new NSTimeProvider ());
+            ServiceContainer.Register<ITimeProvider> (() => new NSTimeProvider());
 
             // Register Ross components:
-            ServiceContainer.Register<ILogger> (() => new Logger ());
-            ServiceContainer.Register<SettingsStore> ();
-            ServiceContainer.Register<ISettingsStore> (() => ServiceContainer.Resolve<SettingsStore> ());
+            ServiceContainer.Register<ILogger> (() => new Logger());
+            ServiceContainer.Register<SettingsStore>();
+            ServiceContainer.Register<ISettingsStore> (() => ServiceContainer.Resolve<SettingsStore>());
             if (systemVersion > minVersionWidget) {
                 ServiceContainer.Register<WidgetUpdateService> (() => new WidgetUpdateService());
-                ServiceContainer.Register<IWidgetUpdateService> (() => ServiceContainer.Resolve<WidgetUpdateService> ());
+                ServiceContainer.Register<IWidgetUpdateService> (() => ServiceContainer.Resolve<WidgetUpdateService>());
             }
             ServiceContainer.Register<ExperimentManager> (() => new ExperimentManager (
                 typeof (Toggl.Phoebe.Analytics.Experiments),
@@ -155,18 +159,18 @@ namespace Toggl.Ross
                     Insights.Initialize (Build.XamInsightsApiKey);
                     #endif
                 }) {
-                    DeviceId = ServiceContainer.Resolve<SettingsStore> ().InstallId,
-                    ProjectNamespaces = new List<string> () { "Toggl." },
+                    DeviceId = ServiceContainer.Resolve<SettingsStore>().InstallId,
+                    ProjectNamespaces = new List<string>() { "Toggl." },
                 };
             });
             ServiceContainer.Register<ITracker> (() => new Tracker());
-            ServiceContainer.Register<INetworkPresence> (() => new NetworkPresence ());
-            ServiceContainer.Register<NetworkIndicatorManager> ();
-            ServiceContainer.Register<TagChipCache> ();
-            ServiceContainer.Register<APNSManager> ();
+            ServiceContainer.Register<INetworkPresence> (() => new NetworkPresence());
+            ServiceContainer.Register<NetworkIndicatorManager>();
+            ServiceContainer.Register<TagChipCache>();
+            ServiceContainer.Register<APNSManager>();
         }
 
-        private void SetupGoogleServices ()
+        private void SetupGoogleServices()
         {
             // Set up Google Analytics
             // the tracker ID isn't detected automatically from GoogleService-info.plist
@@ -177,7 +181,7 @@ namespace Toggl.Ross
             NSError configureError;
             Context.SharedInstance.Configure (out configureError);
             if (configureError != null) {
-                var log = ServiceContainer.Resolve<ILogger> ();
+                var log = ServiceContainer.Resolve<ILogger>();
                 log.Info ("AppDelegate", string.Format ("Error configuring the Google context: {0}", configureError));
             }
         }
@@ -201,7 +205,7 @@ namespace Toggl.Ross
             get {
                 if (appVersion == null) {
                     appVersion = NSBundle.MainBundle.InfoDictionary.ObjectForKey (
-                                     new NSString ("CFBundleShortVersionString")).ToString ();
+                                     new NSString ("CFBundleShortVersionString")).ToString();
                 }
                 return appVersion;
             }

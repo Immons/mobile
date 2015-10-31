@@ -7,9 +7,13 @@ using Toggl.Phoebe.Data.DataObjects;
 using Toggl.Phoebe.Data.Utils;
 using Toggl.Phoebe.Net;
 using XPlatUtils;
+using PropertyChanged;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Toggl.Phoebe.Data.Views
 {
+    [ImplementPropertyChanged]
     public class WorkspaceProjectsView : ICollectionDataView<object>, IDisposable
     {
         private readonly List<Workspace> workspacesList = new List<Workspace> ();
@@ -139,6 +143,9 @@ namespace Toggl.Phoebe.Data.Views
                     OnUpdated ();
                 }
             }
+
+            OnPropertyChanged ("Data");
+            OnPropertyChanged ("Workspaces");
         }
 
         private void OnDataChange (ProjectData data, DataAction action)
@@ -323,6 +330,15 @@ namespace Toggl.Phoebe.Data.Views
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void OnPropertyChanged ([CallerMemberName] string name = "")
+        {
+            if (PropertyChanged != null) {
+                PropertyChanged (this, new PropertyChangedEventArgs (name));
+            }
+        }
+
         private void DispatchCollectionEvent (NotifyCollectionChangedEventArgs args)
         {
             var handler = CollectionChanged;
@@ -364,12 +380,12 @@ namespace Toggl.Phoebe.Data.Views
                 await Task.WhenAll (workspaceTask, projectsTask, tasksTask, clientsTask);
 
                 var wsList = workspaceTask.Result;
-                workspacesList.Clear();
+                workspacesList.Clear ();
                 foreach (var ws in wsList) {
                     var workspace = new Workspace (ws);
                     var projects = projectsTask.Result.Where (r => r.WorkspaceId == ws.Id);
                     var clients = new List<ClientData> ();
-                    clients.Add (new ClientData());
+                    clients.Add (new ClientData ());
                     clients.AddRange (clientsTask.Result.Where (r => r.WorkspaceId == ws.Id));
                     FillClientsBranchForWorkspace (workspace, clients, projects, tasksTask);
                     FillProjectsBranchForWorkspace (workspace, projects, tasksTask);
@@ -377,7 +393,7 @@ namespace Toggl.Phoebe.Data.Views
                 }
 
                 clientDataObjects.AddRange (clientsTask.Result);
-                SortEverything();
+                SortEverything ();
             } finally {
                 UpdateCollection ();
                 IsLoading = false;
@@ -386,6 +402,9 @@ namespace Toggl.Phoebe.Data.Views
                     subscriptionDataChange = bus.Subscribe<DataChangeMessage> (OnDataChange);
                 }
             }
+
+            OnPropertyChanged ("Data");
+            OnPropertyChanged ("Workspaces");
         }
 
         private void FillClientsBranchForWorkspace (Workspace workspace, List<ClientData> clients, IEnumerable<ProjectData> projects, Task<List<TaskData>> tasksTask)
@@ -394,7 +413,8 @@ namespace Toggl.Phoebe.Data.Views
                 Client client;
                 IEnumerable<ProjectData> projectsOfClient;
 
-                if (workspace.Clients.Count == 0) { // first element
+                if (workspace.Clients.Count == 0) {
+                    // first element
                     client = new Client (workspace.Data);
                     client.Projects.Add (new Project (workspace.Data));
                     projectsOfClient = projects.Where (r => r.ClientId == null);
@@ -427,7 +447,7 @@ namespace Toggl.Phoebe.Data.Views
             }
         }
 
-        private void SortEverything()
+        private void SortEverything ()
         {
             SortWorkspaces (workspacesList);
             foreach (var ws in workspacesList) {
@@ -497,7 +517,7 @@ namespace Toggl.Phoebe.Data.Views
                 }
                 return String.Compare (
                            a.Data.Name ?? String.Empty,
-                           b.Data.Name ?? String.Empty,StringComparison.InvariantCulture
+                           b.Data.Name ?? String.Empty, StringComparison.InvariantCulture
                        );
             });
         }
@@ -511,7 +531,9 @@ namespace Toggl.Phoebe.Data.Views
                        ));
         }
 
-        public void LoadMore () {}
+        public void LoadMore ()
+        {
+        }
 
         private void UpdateCollection ()
         {
@@ -552,12 +574,14 @@ namespace Toggl.Phoebe.Data.Views
             }
 
             OnUpdated ();
+            OnPropertyChanged ("Data");
         }
 
         public IEnumerable<object> Data
         {
             get {
                 return dataObjects;
+            } set {
             }
         }
 
@@ -579,7 +603,7 @@ namespace Toggl.Phoebe.Data.Views
         {
             get {
                 return workspacesList;
-            }
+            } set { }
         }
 
         public int CurrentWorkspaceIndex
@@ -658,9 +682,10 @@ namespace Toggl.Phoebe.Data.Views
             public bool HasNoProjects
             {
                 get {
-                    return Projects.Count == 1 && Projects[0].IsNoProject;
+                    return Projects.Count == 1 && Projects [0].IsNoProject;
                 }
             }
+
             public List<Client> Clients
             {
                 get { return clients; }

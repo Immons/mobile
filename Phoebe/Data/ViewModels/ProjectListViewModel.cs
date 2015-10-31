@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PropertyChanged;
 using Toggl.Phoebe.Analytics;
 using Toggl.Phoebe.Data.DataObjects;
 using Toggl.Phoebe.Data.Models;
@@ -8,8 +9,6 @@ using Toggl.Phoebe.Data.Utils;
 using Toggl.Phoebe.Data.ViewModels;
 using Toggl.Phoebe.Data.Views;
 using XPlatUtils;
-using PropertyChanged;
-using System.Windows.Input;
 
 namespace Toggl.Phoebe.Data.ViewModels
 {
@@ -19,21 +18,18 @@ namespace Toggl.Phoebe.Data.ViewModels
         private IList<TimeEntryData> timeEntryList;
         private WorkspaceProjectsView projectList;
         private IList<string> timeEntryIds;
-        private Action navigateBackAction;
 
         public ProjectListViewModel (IList<TimeEntryData> timeEntryList)
         {
             this.timeEntryList = timeEntryList;
-            ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
+            ServiceContainer.Resolve<ITracker> ().CurrentScreen = "Select Project";
         }
 
         public ProjectListViewModel (IList<string> timeEntryIds)
         {
             this.timeEntryIds = timeEntryIds;
-            ServiceContainer.Resolve<ITracker>().CurrentScreen = "Select Project";
+            ServiceContainer.Resolve<ITracker> ().CurrentScreen = "Select Project";
         }
-
-        public event EventHandler<object> ShowNewProjectEvent;
 
         public bool IsLoading { get; set; }
 
@@ -43,10 +39,12 @@ namespace Toggl.Phoebe.Data.ViewModels
         {
             get {
                 if (projectList == null) {
-                    projectList = new WorkspaceProjectsView();
+                    projectList = new WorkspaceProjectsView ();
                 }
 
                 return projectList;
+            } set {
+                //Bind library needs set method
             }
         }
 
@@ -57,7 +55,7 @@ namespace Toggl.Phoebe.Data.ViewModels
             }
         }
 
-        public async Task Init()
+        public async Task Init ()
         {
             IsLoading = true;
 
@@ -69,10 +67,10 @@ namespace Toggl.Phoebe.Data.ViewModels
             if (timeEntryList.Count > 1) {
                 Model = new TimeEntryGroup (timeEntryList);
             } else if (timeEntryList.Count == 1) {
-                Model = new TimeEntryModel (timeEntryList[0]);
+                Model = new TimeEntryModel (timeEntryList [0]);
             }
 
-            await Model.LoadAsync();
+            await Model.LoadAsync ();
 
             if (Model.Workspace == null || Model.Workspace.Id == Guid.Empty) {
                 Model = null;
@@ -81,20 +79,9 @@ namespace Toggl.Phoebe.Data.ViewModels
             IsLoading = false;
         }
 
-        public async Task SaveModelAsync (ProjectModel project, WorkspaceModel workspace, TaskData task = null)
+        public void Dispose ()
         {
-            Model.Project = project;
-            Model.Workspace = workspace;
-            if (task != null) {
-                Model.Task = new TaskModel (task);
-            }
-
-            await Model.SaveAsync();
-        }
-
-        public void Dispose()
-        {
-            projectList.Dispose();
+            projectList.Dispose ();
             Model = null;
         }
 
@@ -102,7 +89,7 @@ namespace Toggl.Phoebe.Data.ViewModels
         {
             project = task != null ? task.Project : project;
             if (project != null) {
-                await project.LoadAsync();
+                await project.LoadAsync ();
                 workspace = project.Workspace;
             }
 
@@ -110,23 +97,7 @@ namespace Toggl.Phoebe.Data.ViewModels
                 Model.Workspace = workspace;
                 Model.Project = project;
                 Model.Task = task;
-                await Model.SaveAsync();
-            }
-
-            if (this.navigateBackAction != null) {
-                this.navigateBackAction();
-            }
-        }
-
-        public void SetNavigateBack (Action action)
-        {
-            this.navigateBackAction = action;
-        }
-
-        public void ShowNewProject (object view)
-        {
-            if (this.ShowNewProjectEvent != null) {
-                this.ShowNewProjectEvent (this, view);
+                await Model.SaveAsync ();
             }
         }
     }

@@ -1,18 +1,14 @@
 using System;
 using CoreGraphics;
-using Toggl.Phoebe.Data.Models;
-using Toggl.Phoebe.Data.Views;
 using Toggl.Ross.Theme;
-using Toggl.Ross.Views;
 using UIKit;
 
 namespace Toggl.Ross.ViewControllers.ProjectList
 {
-    public class WorkspaceHeaderCell : ModelTableViewCell<ProjectAndTaskView.Workspace>
+    public class WorkspaceHeaderCell : UITableViewCell
     {
         private const float HorizSpacing = 15f;
         private readonly UILabel nameLabel;
-        private WorkspaceModel model;
 
         public WorkspaceHeaderCell (IntPtr handle)
         : base (handle)
@@ -25,14 +21,9 @@ namespace Toggl.Ross.ViewControllers.ProjectList
             UserInteractionEnabled = false;
         }
 
-        protected override void OnDataSourceChanged()
+        public UILabel NameLabel
         {
-            model = null;
-            if (DataSource != null) {
-                model = (WorkspaceModel)DataSource.Data;
-            }
-
-            base.OnDataSourceChanged();
+            get { return nameLabel; }
         }
 
         public override void LayoutSubviews()
@@ -46,33 +37,6 @@ namespace Toggl.Ross.ViewControllers.ProjectList
                 width: contentFrame.Width - 2 * HorizSpacing,
                 height: contentFrame.Height
             );
-        }
-
-        protected override void ResetTrackedObservables()
-        {
-            Tracker.MarkAllStale();
-
-            if (model != null) {
-                Tracker.Add (model, HandleClientPropertyChanged);
-            }
-
-            Tracker.ClearStale();
-        }
-
-        private void HandleClientPropertyChanged (string prop)
-        {
-            if (prop == WorkspaceModel.PropertyName) {
-                Rebind();
-            }
-        }
-
-        protected override void Rebind()
-        {
-            ResetTrackedObservables();
-
-            if (model != null) {
-                nameLabel.Text = model.Name;
-            }
         }
     }
 }

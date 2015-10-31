@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace Toggl.Phoebe.Data.Views
 {
-    public interface ICollectionDataView<T> : INotifyCollectionChanged, IDisposable
+    public interface ICollectionDataView<T> : INotifyCollectionChanged, INotifyPropertyChanged, IDisposable
     {
         IEnumerable<T> Data { get; }
 

@@ -14,6 +14,8 @@ using Toggl.Phoebe.Data.Utils;
 using Toggl.Phoebe.Logging;
 using Toggl.Phoebe.Net;
 using XPlatUtils;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Toggl.Phoebe.Data.Views
 {
@@ -91,6 +93,16 @@ namespace Toggl.Phoebe.Data.Views
         }
 
         #region Update List
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void OnPropertyChanged ([CallerMemberName] string name = "")
+        {
+            if (PropertyChanged != null) {
+                PropertyChanged (this, new PropertyChangedEventArgs (name));
+            }
+        }
+
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
         private async void OnDataChange (DataChangeMessage msg)
@@ -234,9 +246,11 @@ namespace Toggl.Phoebe.Data.Views
 
             return timeEntryList;
         }
+
         #endregion
 
         #region TimeEntry operations
+
         public async void ContinueTimeEntry (int index)
         {
             // Get data holder
@@ -255,9 +269,11 @@ namespace Toggl.Phoebe.Data.Views
                 ServiceContainer.Resolve<ITracker> ().SendTimerStartEvent (TimerStartSource.AppContinue);
             }
         }
+
         #endregion
 
         #region Undo
+
         public async Task RemoveItemWithUndoAsync (int index)
         {
             // Get data holder
@@ -338,9 +354,11 @@ namespace Toggl.Phoebe.Data.Views
             var holder = ItemCollection [index] as TimeEntryHolder;
             return holder;
         }
+
         #endregion
 
         #region Load
+
         private void OnSyncFinished (SyncFinishedMessage msg)
         {
             if (reloadScheduled) {
@@ -522,7 +540,7 @@ namespace Toggl.Phoebe.Data.Views
             }
             private set {
 
-                if (isLoading  == value) {
+                if (isLoading == value) {
                     return;
                 }
 
@@ -577,7 +595,7 @@ namespace Toggl.Phoebe.Data.Views
 
         public interface IDateGroup : IDisposable
         {
-            DateTime Date {  get; }
+            DateTime Date { get; }
 
             bool IsRunning { get; }
 
